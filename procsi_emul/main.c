@@ -149,7 +149,7 @@ void clean_window(WINDOW *  my_menu_win);
 void clean_menu(MENU * my_menu);
 int exists(const char *fname);
 void execute_file_menu(int choice,const char * choice_name, char * folder);
-void display_execution(mot * tab_mot_instruction, int nb_instruction, int* registres,int nb_reg, int PC, int SP, int SR);
+void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_instruction, int* registres,int nb_reg, int PC, int SP, int SR);
 char * codeop_tostring(int codeop);
 char * mode_tostring(int a_mode);
 
@@ -419,7 +419,7 @@ void execute_file_menu(int choice,const char * choice_name, char * folder){
          
          mvprintw(LINES-2, 0, "                                                        ");
          mvprintw(LINES-1, 0, "%s                                                                ", folder_complet);
-         display_execution(mem, taille_mem, reg, taille_reg, 1, 2, 3);
+         display_execution(6, mem, taille_mem, reg, taille_reg, 1, 2, 3);
         
     }
     else if(exists(folder_complet) == 2){
@@ -438,7 +438,9 @@ void execute_file_menu(int choice,const char * choice_name, char * folder){
 
 }
 
-void display_execution(mot * tab_mot_instruction, int nb_instruction, int* registres,int nb_reg, int PC, int SP, int SR){
+void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_instruction, int* registres,int nb_reg, int PC, int SP, int SR){
+        ITEM *item_en_cour = NULL; 
+    
         char ** tab_instruction;
         // for instructions
         ITEM **instructions_items;
@@ -457,7 +459,7 @@ void display_execution(mot * tab_mot_instruction, int nb_instruction, int* regis
         ITEM **register_items;
 	WINDOW *register_win;
 	MENU *register_menu;
-	register_items = (ITEM **)calloc(nb_reg + 1, sizeof(ITEM *));
+	register_items = (ITEM **)calloc(nb_reg + 1 +3, sizeof(ITEM *)); //+3 pour PC SP et SR
         int menu_register_alrdy_dlt = 0; //pour ne pas supprimer le menu 2 fois --> évite les erreur de segmentation lorsqu'on quitte
         
         
@@ -466,9 +468,11 @@ void display_execution(mot * tab_mot_instruction, int nb_instruction, int* regis
         char dest_string[5];
         char source_string[5];
         char brut_string[10];
+        char pc_string[6], sp_string[6], sr_string[6];
         
         
-        int is_brut = 0; //si le mot précedent contient un mode direct, alors le mot suivant est un brut
+        
+        int is_brut = 0; //si le mot précedent contient un mode direct, alors le mot suivant est un brut //si DIRIMM les 2 suivant sont des brut
         
         
         //allocation de mémoire pour les insctruction sous forme de chaine
@@ -489,14 +493,19 @@ void display_execution(mot * tab_mot_instruction, int nb_instruction, int* regis
                 
             
             if(is_brut == 0){
+               
+                
                 operateur = codeop_tostring(tab_mot_instruction[i].codage.codeop);
                 mode_string = mode_tostring(tab_mot_instruction[i].codage.mode);
                 sprintf(dest_string, "%d", tab_mot_instruction[i].codage.dest);
                 sprintf(source_string, "%d", tab_mot_instruction[i].codage.source);
                 
                 //si l'instruction contient une source ou destination en mode immediat ou direct, la prochaine instruction sera un brut
-                if(tab_mot_instruction[i].codage.mode == REGIMM || tab_mot_instruction[i].codage.mode == DIRIMM || tab_mot_instruction[i].codage.mode == INDIMM || tab_mot_instruction[i].codage.mode == REGDIR || tab_mot_instruction[i].codage.mode ==  DIRREG){
+                if(is_brut==2 || tab_mot_instruction[i].codage.mode == REGIMM || tab_mot_instruction[i].codage.mode == INDIMM || tab_mot_instruction[i].codage.mode == REGDIR || tab_mot_instruction[i].codage.mode ==  DIRREG){
                     is_brut = 1;
+                }
+                if(tab_mot_instruction[i].codage.mode == DIRIMM){
+                    is_brut = 2;
                 }
                 
                 strcpy(tab_instruction[i], operateur ); //on met tout les élément sous forme de string concaténé et espacé
@@ -510,13 +519,26 @@ void display_execution(mot * tab_mot_instruction, int nb_instruction, int* regis
             else{
                sprintf(brut_string, "%d", tab_mot_instruction[i].brut); 
                strcpy(tab_instruction[i], brut_string ); 
-               is_brut = 0;
+               if(is_brut == 2){
+                   is_brut = 1; // cas du DIRIMM
+               } else{
+                   is_brut = 0;
+               }
             }
                 
 
                 //mvprintw(i+2, 0, "%s", tab_instruction[i]);
                 instructions_items[i] = new_item(tab_instruction[i], ""); //ajoute les éléments dans mon tableau d'item
+                
+                if(i == num_instruction){
+                        //on sauvegarde l'adresse de l'item que l'on est entrain de traiter (celui donner par num_instruction)
+                        item_en_cour = instructions_items[i];
+                        //n le desactive, cela permet de lui doonner une autre apparence pur le repérer
+                        item_opts_off(instructions_items[i], O_SELECTABLE);
+                }
         }
+                
+        
         
         
         
@@ -529,8 +551,14 @@ void display_execution(mot * tab_mot_instruction, int nb_instruction, int* regis
                 //mvprintw(i+2, 0, "%s", tab_instruction[i]);
                 register_items[i] = new_item(tab_register[i], ""); //ajoute les éléments dans mon tableau d'item
         }
-        
-        
+                sprintf(pc_string, "%d", PC);
+                sprintf(sp_string, "%d", SP);
+                sprintf(sr_string, "%d", SR);
+                register_items[nb_reg] = new_item("PC:", pc_string); //register_items[8]
+                register_items[nb_reg+1] = new_item("SP:", sp_string); //register_items[9]
+                register_items[nb_reg+2] = new_item("SR:", sr_string);  //register_items[10]
+                //pour cacher la selection du premier registre
+                item_opts_off(register_items[0], O_SELECTABLE);
         
         
 	instruction_menu = new_menu((ITEM **)instructions_items); //creer un menu contenant les instructions
@@ -541,7 +569,7 @@ void display_execution(mot * tab_mot_instruction, int nb_instruction, int* regis
         
         
         instructions_win = newwin((LINES-4)/2, 40 , 3, (COLS/2)- (COLS-4)/4); //créer une nouvelle fenetre pour les instructions
-        register_win = newwin((LINES-6), 20 , 3, (COLS/2) + 10); //créer une nouvelle fenetre pour les registres
+        register_win = newwin(16, 20 , 3, (COLS/2) + 10); //créer une nouvelle fenetre pour les registres
         
         keypad(instructions_win, TRUE); //active le clavier sur les instructions
        
@@ -553,8 +581,8 @@ void display_execution(mot * tab_mot_instruction, int nb_instruction, int* regis
         set_menu_format(instruction_menu, ((LINES-4)/2)-4, 1);
         
         set_menu_win(register_menu, register_win); //set main menu
-        set_menu_sub(register_menu, derwin(register_win, ((LINES-4)/2)-4, 18, 3, 1)); // set sub window
-        set_menu_format(register_menu, ((LINES-4)/2)-4, 1);
+        set_menu_sub(register_menu, derwin(register_win, 13, 18, 3, 1)); // set sub window
+        set_menu_format(register_menu, 13, 1);
         
         
         
@@ -574,18 +602,21 @@ void display_execution(mot * tab_mot_instruction, int nb_instruction, int* regis
         box(register_win, 0, 0);
         print_in_middle(register_win, 1, 0, 20, "Registres", COLOR_PAIR(1));
 	mvwaddch(register_win, 2, 0, ACS_LTEE);
-	mvwhline(register_win, 2, 1, ACS_HLINE, 43);
-	mvwaddch(register_win, 2, 39, ACS_RTEE);
+	mvwhline(register_win, 2, 1, ACS_HLINE, 22);
+	mvwaddch(register_win, 2, 19, ACS_RTEE);
 	refresh();
         
 	post_menu(instruction_menu);
         post_menu(register_menu);
         
+        //on se place sur l'instruction en cour
+        set_current_item (instruction_menu, item_en_cour);
+        
 	wrefresh(instructions_win);
         wrefresh(register_win);
        
 
-	while((c = getch()) != KEY_F(9) && c != 27)
+	while((c = getch()) != KEY_F(9) && c != 32)
 	{   switch(c)
 	    {	case KEY_F(5):
                 mvprintw(LINES-2, 0, "Exiting...");
@@ -622,9 +653,14 @@ void display_execution(mot * tab_mot_instruction, int nb_instruction, int* regis
 		}
                 wrefresh(instructions_win);
 	}
-        if(menu_register_alrdy_dlt == 0)
+        if(menu_instruction_alrdy_dlt == 0){
                 clean_menu(instruction_menu);
-        clean_window(instructions_win);
+                clean_window(instructions_win);
+        }
+                if(menu_register_alrdy_dlt == 0){
+                clean_menu(register_menu);
+                clean_window(register_win);
+        }
     
     
 }

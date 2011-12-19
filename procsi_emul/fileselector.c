@@ -1,6 +1,9 @@
+#include <ncurses.h>
 #include <stdio.h>
 #include <string.h>
+#include <menu.h>
 #include <stdlib.h>
+#include <sys/types.h>
 
 
 char ** list_file(char * folder, int* nb_result){

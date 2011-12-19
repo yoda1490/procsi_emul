@@ -1,3 +1,8 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+
 char ** list_file(char * folder, int* nb_result){
     
     struct dirent *lecture;

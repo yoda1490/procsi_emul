@@ -18,6 +18,7 @@ mot * parse(char * file, int * nb_instruction){
     fichier = fopen(file, "r");
  
     int err;
+    int inutil = 0; //est incrémenté à chaque ligne du fichier qui ne sert à rienn (commentaire ou ligne vide) pour pouvoir retourner la ligne de l'erreur
     
     int match;
     regex_t preg_add;
@@ -42,7 +43,7 @@ mot * parse(char * file, int * nb_instruction){
     const char *operateur_call_regex = "^[ \t]*CALL";
     err = regcomp (&preg_call, operateur_call_regex, REG_NOSUB | REG_EXTENDED);
     regex_t preg_ret;
-    const char *operateur_ret_regex = "^[ \t]*RET[ \t]*$"; //n'a aucune opérande donc régex unique pour lui
+    const char *operateur_ret_regex = "^[ \t]*RET[ \t]*\n$"; //n'a aucune opérande donc régex unique pour lui
     err = regcomp (&preg_ret, operateur_ret_regex, REG_NOSUB | REG_EXTENDED);
     regex_t preg_push;
     const char *operateur_push_regex = "^[ \t]*PUSH";
@@ -51,8 +52,15 @@ mot * parse(char * file, int * nb_instruction){
     const char *operateur_pop_regex = "^[ \t]*POP";
     err = regcomp (&preg_pop, operateur_pop_regex, REG_NOSUB | REG_EXTENDED);
     regex_t preg_halt;
-    const char *operateur_halt_regex = "^[ \t]*HALT[ \t]*$"; //même commentaire que pour RET
+    const char *operateur_halt_regex = "^[ \t]*HALT[ \t]*\n$"; //même commentaire que pour RET
     err = regcomp (&preg_halt, operateur_halt_regex, REG_NOSUB | REG_EXTENDED);
+    
+     //pour les lignes vide et de commentaire
+    regex_t preg_empty;
+    const char *operateur_empty_regex = "^[ \t]*(//(.+))*(#(.+))*\n$"; //même commentaire que pour RET
+    err = regcomp (&preg_empty, operateur_empty_regex, REG_NOSUB | REG_EXTENDED);
+    
+    
     
     regex_t preg_regreg;
     const char *operateur_regreg_regex = "^[ \t]*([A-Z]{3,5})[ \t]+R[0-7][ \t]*,[ \t]*R[0-7][ \t]*\n$";
@@ -96,13 +104,15 @@ mot * parse(char * file, int * nb_instruction){
     
     //pour RET et HALT qui n'ont aucune opérande, la regex total est faite dans la première partie (dans la regex pour RET et HALP
     
+   
     
-    
-    nb_instruction = 0;
+    *nb_instruction = 0;
    if (fichier != NULL)
     {
         while (fgets(chaine, TAILLE_MAX, fichier) != NULL) // On lit le fichier tant qu'on ne reçoit pas d'erreur (NULL)
         {
+            *nb_instruction += 1; //ne pas oublier d'incrementer le nombre d'instruction 
+            //printf("%i", *nb_instruction);
             //pour les ADD
             if (regexec (&preg_add, chaine, 0, NULL, 0) != REG_NOMATCH){
                         printf ("ADD");
@@ -118,6 +128,9 @@ mot * parse(char * file, int * nb_instruction){
                         }else if(regexec (&preg_regind, chaine, 0, NULL, 0) != REG_NOMATCH){
                             printf (" REGIND");
                         
+                        } else{
+                            *nb_instruction += 2000 + inutil;
+                            return NULL;
                         }
             //pour les SUB
             }else if (regexec (&preg_sub, chaine, 0, NULL, 0) != REG_NOMATCH) {
@@ -134,6 +147,9 @@ mot * parse(char * file, int * nb_instruction){
                         }else if(regexec (&preg_regind, chaine, 0, NULL, 0) != REG_NOMATCH){
                             printf (" REGIND");
                         
+                        } else{
+                            *nb_instruction += 2000 + inutil;
+                            return NULL;
                         }
                         
             //pour les LOAD            
@@ -148,6 +164,9 @@ mot * parse(char * file, int * nb_instruction){
                         
                         }else if(regexec (&preg_regind, chaine, 0, NULL, 0) != REG_NOMATCH){
                             printf (" REGIND");
+                        } else{
+                            *nb_instruction += 2000 + inutil;
+                            return NULL;
                         }
                         
             
@@ -165,40 +184,106 @@ mot * parse(char * file, int * nb_instruction){
                         
                         } else if(regexec (&preg_indimm, chaine, 0, NULL, 0) != REG_NOMATCH){
                             printf (" INDIMM");
+                        } else{
+                            *nb_instruction += 2000 + inutil;
+                            return NULL;
                         }
-            
+        //pour les JMP    
         }else if (regexec (&preg_jmp, chaine, 0, NULL, 0) != REG_NOMATCH){
                         printf ("JMP");
                         if(regexec (&preg_regimm, chaine, 0, NULL, 0) != REG_NOMATCH){
                             printf ("IMM");
                         
-                        } 
-            
+                        }  else{
+                            *nb_instruction += 2000 + inutil;
+                            return NULL;
+                        }
+        //pour les JEQ    
         }else if (regexec (&preg_jeq, chaine, 0, NULL, 0) != REG_NOMATCH){
                         printf ("JEQ");
                         if(regexec (&preg_imm, chaine, 0, NULL, 0) != REG_NOMATCH){
                             printf (" IMM");
                         
-                        } 
-            
+                        }  else{
+                            *nb_instruction += 2000 + inutil;
+                            return NULL;
+                        }
+        //pour les CALL    
         }else if (regexec (&preg_call, chaine, 0, NULL, 0) != REG_NOMATCH){
                         printf ("CALL");
                         if(regexec (&preg_imm, chaine, 0, NULL, 0) != REG_NOMATCH){
                             printf (" IMM");
                         
-                        } 
-            
+                        } else{
+                            *nb_instruction += 2000 + inutil;
+                            return NULL;
+                        }
+        //pour les RET    
         }else if (regexec (&preg_ret, chaine, 0, NULL, 0) != REG_NOMATCH){
                         printf ("RET");
+        //pour les PUSH
+        }else if (regexec (&preg_push, chaine, 0, NULL, 0) != REG_NOMATCH){
+                        printf ("PUSH");
+                        if(regexec (&preg_reg, chaine, 0, NULL, 0) != REG_NOMATCH){
+                            printf (" REG");
                         
+                        } else if(regexec (&preg_imm, chaine, 0, NULL, 0) != REG_NOMATCH){
+                            printf (" IMM");
+                        
+                        } else if(regexec (&preg_dir, chaine, 0, NULL, 0) != REG_NOMATCH){
+                            printf (" DIR");
+                        
+                        } else if(regexec (&preg_ind, chaine, 0, NULL, 0) != REG_NOMATCH){
+                            printf (" IND");
+                        } else{
+                            *nb_instruction += 2000 + inutil;
+                            return NULL;
+                        }
+        //pour les pop    
+        }else if (regexec (&preg_pop, chaine, 0, NULL, 0) != REG_NOMATCH){
+                        printf ("POP");
+                        if(regexec (&preg_reg, chaine, 0, NULL, 0) != REG_NOMATCH){
+                            printf (" REG");
+                        
+                        } else if(regexec (&preg_dir, chaine, 0, NULL, 0) != REG_NOMATCH){
+                            printf (" DIR");
+                        
+                        } else if(regexec (&preg_ind, chaine, 0, NULL, 0) != REG_NOMATCH){
+                            printf (" IND");
+                        
+                        } else{
+                            *nb_instruction += 2000 + inutil;
+                            return NULL;
+                        }
+          //HALT fin du code asm donc on quitte  
+        }else if (regexec (&preg_halt, chaine, 0, NULL, 0) != REG_NOMATCH){
+                        printf ("HALT");
+                        fclose(fichier);
+                        return ; //a completer !!!
+                        
+            
+            }else if (regexec (&preg_empty, chaine, 0, NULL, 0) != REG_NOMATCH){
+                        //ligne vide ou de commentaire
+                inutil += 1; //on l'incrémente pour renvoyer la ligne de l'erreur
+                *nb_instruction -= 1; //in le s'agit pas d'une instruction donc on décrémente ce qu'on avait incémenté plus haut
+                printf("Vide ou commentaire");
+
+            } else{
+                            *nb_instruction += 4000 + inutil;
+                            return NULL;
+                        }
+        
+        
+            printf("%s", chaine); // On affiche la chaîne qu'on vient de lire
+            
+            
+           
+            
             
         }
         
-            printf("%s", chaine); // On affiche la chaîne qu'on vient de lire
-            nb_instruction ++;
-        }
- 
         fclose(fichier);
+        *nb_instruction = -2;
     }
     else{
         *nb_instruction = -1;
@@ -209,10 +294,17 @@ mot * parse(char * file, int * nb_instruction){
 
 int main(int argc, char *argv[])
 {
-    int nb_instr; 
+    int nb_instr = 0; 
     parse("example.asm", &nb_instr);
     
+    
     if(nb_instr == -1){
-        printf("Erreur lors de l'ouverture du fichier");
+        printf("\nErreur lors de l'ouverture du fichier\n");
+    }else if(nb_instr == -2){
+        printf("\nInstruction HALT en fin de fichier non trouvé\n");
+    }else if(nb_instr > 2000 && nb_instr <= 4000){
+        printf("\nErreur: mode d'adressage non disponible pour l'opérateur ligne %i\n", nb_instr-2000);
+    }else if(nb_instr > 4000 && nb_instr <= 6000){
+        printf("\nErreur: opérateur inconnue ligne %i\n", nb_instr-4000);
     }
 }

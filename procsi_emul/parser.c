@@ -11,14 +11,30 @@
 #define TAILLE_MAX 1000
 #define MAX_INSTRUCTION 1999
 
+void get_operandes(char * chaine, regmatch_t *pmatch, char ** source, char ** dest);
+
+
 mot * parse(char * file, int * nb_instruction){
     FILE* fichier = NULL;
     int caractereActuel = 0;
     char chaine[TAILLE_MAX] = "";
     fichier = fopen(file, "r");
- 
-    int err;
+    mot tab_mot[MAX_INSTRUCTION]; //pour une gestion plus simplifier on déclare un tableau de 1999, comme sa pas d'erreur de segmentation si le codeur ASM accès des des zones non déclaré ...
+    
+    mot mot_temp; //mot temporaire que l'on va placer dans tab_mot
+    
+    
+    int err; //erreur de regex ... les erreurs ne sont pas testé ici car on suppose toutes les regex valide
     int inutil = 0; //est incrémenté à chaque ligne du fichier qui ne sert à rienn (commentaire ou ligne vide) pour pouvoir retourner la ligne de l'erreur
+    
+    //pour récupéré source et dest
+    size_t nmatch = 0;
+    regmatch_t *pmatch = NULL;
+    pmatch = malloc (sizeof (*pmatch) * nmatch);  
+    
+    
+    
+    
     
     int match;
     regex_t preg_add;
@@ -63,47 +79,50 @@ mot * parse(char * file, int * nb_instruction){
     
     
     regex_t preg_regreg;
-    const char *operateur_regreg_regex = "^[ \t]*([A-Z]{3,5})[ \t]+R[0-7][ \t]*,[ \t]*R[0-7][ \t]*\n$";
-    err = regcomp (&preg_regreg, operateur_regreg_regex, REG_NOSUB | REG_EXTENDED);
+    const char *operateur_regreg_regex = "^[ \t]*([A-Z]{3,5})[ \t]+R([0-7])[ \t]*,[ \t]*R([0-7])([ \t])*\n$";
+    err = regcomp (&preg_regreg, operateur_regreg_regex,  REG_EXTENDED);
     regex_t preg_dirreg;
     const char *operateur_dirreg_regex = "^[ \t]*([A-Z]{3,5})[ \t]+\\[[2-3][0-9]{1,3}\\][ \t]*,[ \t]*R[0-7][ \t]*\n$"; 
-    err = regcomp (&preg_dirreg, operateur_dirreg_regex, REG_NOSUB | REG_EXTENDED);
+    err = regcomp (&preg_dirreg, operateur_dirreg_regex,  REG_EXTENDED);
     regex_t preg_indreg;
     const char *operateur_indreg_regex = "^[ \t]*([A-Z]{3,5})[ \t]+\\[R[0-7]\\][ \t]*,[ \t]*R[0-7][ \t]*\n$";
-    err = regcomp (&preg_indreg, operateur_indreg_regex, REG_NOSUB | REG_EXTENDED);
+    err = regcomp (&preg_indreg, operateur_indreg_regex,  REG_EXTENDED);
     regex_t preg_regimm;
     const char *operateur_regimm_regex = "^[ \t]*([A-Z]{3,5})[ \t]+R[0-7][ \t]*,[ \t]*#[1-9][0-9]{0,5}[ \t]*\n$";
-    err = regcomp (&preg_regimm, operateur_regimm_regex, REG_NOSUB | REG_EXTENDED);
+    err = regcomp (&preg_regimm, operateur_regimm_regex,  REG_EXTENDED);
     regex_t preg_dirimm;
     const char *operateur_dirimm_regex = "^[ \t]*([A-Z]{3,5})[ \t]+\\[[2-3][0-9]{1,3}\\][ \t]*,[ \t]*#[1-9][0-9]{0,5}[ \t]*\n$";
-    err = regcomp (&preg_dirimm, operateur_dirimm_regex, REG_NOSUB | REG_EXTENDED);
+    err = regcomp (&preg_dirimm, operateur_dirimm_regex,  REG_EXTENDED);
     regex_t preg_indimm;
     const char *operateur_indimm_regex = "^[ \t]*([A-Z]{3,5})[ \t]+\\[R[0-7]\\][ \t]*,[ \t]*#[1-9][0-9]{0,5}[ \t]*\n$";
-    err = regcomp (&preg_indimm, operateur_indimm_regex, REG_NOSUB | REG_EXTENDED);
+    err = regcomp (&preg_indimm, operateur_indimm_regex,  REG_EXTENDED);
     regex_t preg_regdir;
     const char *operateur_regdir_regex = "^[ \t]*([A-Z]{3,5})[ \t]+R[0-7][ \t]*,[ \t]*\\[[2-3][0-9]{1,3}\\][ \t]*\n$";
-    err = regcomp (&preg_regdir, operateur_regdir_regex, REG_NOSUB | REG_EXTENDED);
+    err = regcomp (&preg_regdir, operateur_regdir_regex,  REG_EXTENDED);
     regex_t preg_regind;
     const char *operateur_regind_regex = "^[ \t]*([A-Z]{3,5})[ \t]+R[0-7][ \t]*,[ \t]*\\[R[0-7]\\][ \t]*\n$";
-    err = regcomp (&preg_regind, operateur_regind_regex, REG_NOSUB | REG_EXTENDED);
+    err = regcomp (&preg_regind, operateur_regind_regex,  REG_EXTENDED);
     
     
     //opérande unique pour JMP JEQ CALL PUSH POP
     regex_t preg_reg;
     const char *operateur_reg_regex = "^[ \t]*([A-Z]{3,5})[ \t]+R[0-7][ \t]*\n$";
-    err = regcomp (&preg_reg, operateur_reg_regex, REG_NOSUB | REG_EXTENDED);
+    err = regcomp (&preg_reg, operateur_reg_regex,  REG_EXTENDED);
     regex_t preg_dir;
     const char *operateur_dir_regex = "^[ \t]*([A-Z]{3,5})[ \t]+\\[[2-3][0-9]{1,3}\\][ \t]*\n$";
-    err = regcomp (&preg_dir, operateur_dir_regex, REG_NOSUB | REG_EXTENDED);
+    err = regcomp (&preg_dir, operateur_dir_regex,  REG_EXTENDED);
     regex_t preg_ind;
     const char *operateur_ind_regex = "^[ \t]*([A-Z]{3,5})[ \t]+\\[R[0-7]\\][ \t]*\n$";
-    err = regcomp (&preg_ind, operateur_ind_regex, REG_NOSUB | REG_EXTENDED);
+    err = regcomp (&preg_ind, operateur_ind_regex,  REG_EXTENDED);
     regex_t preg_imm;
     const char *operateur_imm_regex = "^[ \t]*([A-Z]{3,5})[ \t]+#[1-9][0-9]{0,5}[ \t]*\n$";
-    err = regcomp (&preg_imm, operateur_imm_regex, REG_NOSUB | REG_EXTENDED);
+    err = regcomp (&preg_imm, operateur_imm_regex,  REG_EXTENDED);
     
     //pour RET et HALT qui n'ont aucune opérande, la regex total est faite dans la première partie (dans la regex pour RET et HALP
+   
     
+   //suite pour récupérer les opérandes
+   nmatch = preg_regreg.re_nsub;
    
     
     *nb_instruction = 0;
@@ -116,7 +135,19 @@ mot * parse(char * file, int * nb_instruction){
             //pour les ADD
             if (regexec (&preg_add, chaine, 0, NULL, 0) != REG_NOMATCH){
                         printf ("ADD");
-                        if(regexec (&preg_regreg, chaine, 0, NULL, 0) != REG_NOMATCH){
+                        if(regexec (&preg_regreg, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
+                            
+                            char ** source = malloc (sizeof(char **));
+                            char ** dest = malloc (sizeof(char **));
+                            
+                            get_operandes(chaine, pmatch, source, dest);
+                            mot_temp.brut = 0;
+                            mot_temp.codage.codeop = ADD;
+                            mot_temp.codage.mode = REGREG;
+                            mot_temp.codage.source = atoi(*source);
+                           mot_temp.codage.dest = atoi(*dest);
+                            
+                            tab_mot[*nb_instruction-1] = mot_temp;
                             printf (" REGREG");
                         
                         }else if(regexec (&preg_regimm, chaine, 0, NULL, 0) != REG_NOMATCH){
@@ -191,7 +222,7 @@ mot * parse(char * file, int * nb_instruction){
         //pour les JMP    
         }else if (regexec (&preg_jmp, chaine, 0, NULL, 0) != REG_NOMATCH){
                         printf ("JMP");
-                        if(regexec (&preg_regimm, chaine, 0, NULL, 0) != REG_NOMATCH){
+                        if(regexec (&preg_imm, chaine, 0, NULL, 0) != REG_NOMATCH){
                             printf ("IMM");
                         
                         }  else{
@@ -290,6 +321,40 @@ mot * parse(char * file, int * nb_instruction){
     }
  
     //return 0;
+}
+
+void get_operandes(char * chaine, regmatch_t *pmatch, char ** source, char ** dest){ 
+    //on récupère l'operande destination on la fou dans dest_temp et on donne l'adresse de dest_temp à dest 
+    int start = pmatch[2].rm_so;
+    int end = pmatch[2].rm_eo;
+    size_t size = end - start;
+    char * dest_temp = malloc ((size + 1) * sizeof(char));
+    if (dest_temp)
+       {
+        
+      strncpy (dest_temp, &chaine[start], size);
+      
+      dest_temp[size] = '\0';
+       //printf ("non %c non\n", dest[size-1]);
+      *dest = dest_temp;
+       //printf ("\nAZERTY %s %s QWERTY\n", *dest, dest_temp);
+       }
+    
+    //même chose pour l'operande destination
+    start = pmatch[3].rm_so;
+    end = pmatch[3].rm_eo;
+    size = end - start;
+    char * source_temp = malloc ((size + 1) * sizeof(char));
+    if (source_temp)
+       {
+        
+      strncpy (source_temp, &chaine[start], size);
+      
+      source_temp[size] = '\0';
+       //printf ("non %c non\n", dest[size-1]);
+      *source = source_temp;
+       //printf ("\nAZERTY %s %s QWERTY\n", *source, dest_temp);
+       }
 }
 
 int main(int argc, char *argv[])

@@ -17,7 +17,7 @@
 	STORE 	[R6],	R1
 	STORE 	[R6],	#2000
 
-	JMP #2000
+JMP #2000
 
 	JEQ	#2000
 

@@ -1,5 +1,5 @@
         ADD 	R2,	R1	
-        ADD 	R7,	[3234]
+        ADD 	R7,	[2000]
         ADD 	R3,	#1
         ADD 	R4,	[R6]
  //ceci est un commentaire       
@@ -17,7 +17,7 @@
 	STORE 	[R6],	R1
 	STORE 	[R6],	#2000
 
-	JMP #2000
+	JMP	#2000
 
 	JEQ	#2000
 
@@ -36,3 +36,5 @@
 	
 	HALT
 
+
+	POP	R4

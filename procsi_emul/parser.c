@@ -6,14 +6,11 @@
 
 
 #include "fonction.h"
+#include "parser.h"
 
 
 #define TAILLE_MAX 1000
 #define MAX_INSTRUCTION 1999
-
-void get_operandes(char * chaine, regmatch_t *pmatch, char ** source, char ** dest);
-mot save_brut(int brut);
-mot save_mot(mnemonique operateur, mode le_mode, int source, int dest);
 
 
 mot * parse(char * file, int * nb_instruction){
@@ -21,7 +18,7 @@ mot * parse(char * file, int * nb_instruction){
     int caractereActuel = 0;
     char chaine[TAILLE_MAX] = "";
     fichier = fopen(file, "r");
-    mot tab_mot[MAX_INSTRUCTION]; //pour une gestion plus simplifier on déclare un tableau de 1999, comme sa pas d'erreur de segmentation si le codeur ASM accès des des zones non déclaré ...
+    mot* tab_mot = malloc(sizeof(mot)*MAX_INSTRUCTION); //pour une gestion plus simplifier on déclare un tableau de 1999, comme sa pas d'erreur de segmentation si le codeur ASM accès des des zones non déclaré ...
     
     mot mot_temp; //mot temporaire que l'on va placer dans tab_mot
     
@@ -377,21 +374,30 @@ mot * parse(char * file, int * nb_instruction){
                         }
         //pour les pop
         
-        }else if (regexec (&preg_pop, chaine, 0, NULL, 0) != REG_NOMATCH){
+        }else if (regexec (&preg_pop, chaine, nmatch, NULL, 0) != REG_NOMATCH){
                         printf ("POP");
                         
                         
-                        if(regexec (&preg_reg, chaine, 0, pmatch, 0) != REG_NOMATCH){
+                        if(regexec (&preg_reg, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
                              get_operandes(chaine, pmatch, source, dest);
                             //REGREG car le REG n'existe pas
                             tab_mot[*nb_instruction-1] = save_mot(POP, REGREG, atoi(*dest), 0) ;
                             printf (" REG %i", tab_mot[*nb_instruction-1].codage.source);
                         
-                        } else if(regexec (&preg_dir, chaine, 0, pmatch, 0) != REG_NOMATCH){
-                            printf (" DIR");
+                        } else if(regexec (&preg_dir, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
+                            get_operandes(chaine, pmatch, source, dest);
+                            
+                            tab_mot[*nb_instruction-1] = save_mot(POP, REGDIR, 0, 0) ; //-1 car un tableau commence a 0 et ici nous incrémentons avant cette operation
+                            *nb_instruction += 1;
+                            tab_mot[*nb_instruction-1] = save_brut(atoi(*dest));
+
+			    printf (" DIR %i", tab_mot[*nb_instruction-1].brut);
                         
-                        } else if(regexec (&preg_ind, chaine, 0, pmatch, 0) != REG_NOMATCH){
-                            printf (" IND");
+                        } else if(regexec (&preg_ind, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
+                             get_operandes(chaine, pmatch, source, dest);
+                            
+                            tab_mot[*nb_instruction-1] = save_mot(POP, REGIND, atoi(*dest), 0) ;
+                            printf (" IND %i", tab_mot[*nb_instruction-1].codage.source);
                         
                         } else{
                             *nb_instruction += 2000 + inutil;
@@ -400,8 +406,8 @@ mot * parse(char * file, int * nb_instruction){
          //HALT fin du code asm donc on quitte  
         }else if (regexec (&preg_halt, chaine, 0, NULL, 0) != REG_NOMATCH){
                         printf ("HALT");
-                        fclose(fichier);
-                        return ; //a completer !!!
+                        //fclose(fichier);
+                        return tab_mot; //a completer !!!
                         
             
             }else if (regexec (&preg_empty, chaine, 0, NULL, 0) != REG_NOMATCH){
@@ -424,12 +430,14 @@ mot * parse(char * file, int * nb_instruction){
             
         }
         
-        fclose(fichier);
+       
         *nb_instruction = -2;
     }
     else{
         *nb_instruction = -1;
     }
+    
+     fclose(fichier);
  
     //return 0;
 }
@@ -471,8 +479,8 @@ void get_operandes(char * chaine, regmatch_t *pmatch, char ** source, char ** de
 mot save_mot(mnemonique operateur, mode le_mode, int source, int dest){
      mot mot_temp;
      mot_temp.brut = 0;
-     mot_temp.codage.codeop = ADD;
-     mot_temp.codage.mode = REGREG;
+     mot_temp.codage.codeop = operateur;
+     mot_temp.codage.mode = le_mode;
      mot_temp.codage.source = source;
      mot_temp.codage.dest = dest;
      return mot_temp;

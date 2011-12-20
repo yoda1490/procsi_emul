@@ -32,7 +32,7 @@ mot * parse(char * file, int * nb_instruction){
     //pour récupéré source et dest
     size_t nmatch = 0;
     regmatch_t *pmatch = NULL;
-    pmatch = malloc (sizeof (*pmatch) * nmatch);  
+    pmatch = malloc (sizeof (*pmatch) * (nmatch+1));  
     
     
     
@@ -109,16 +109,16 @@ mot * parse(char * file, int * nb_instruction){
     //opérande unique pour JMP JEQ CALL PUSH POP
     //certaines parenthèses son "en trop" cela permet d'utiliser les mêmes fonctions de récupération d'opérande d'au dessus
     regex_t preg_reg;
-    const char *operateur_reg_regex = "^[ \t]*([A-Z]{3,5})[ \t]+R([0-7])([ \t])*(\n)$";
+    const char *operateur_reg_regex = "^[ \t]*([A-Z]{3,5})[ \t]+R([0-7])([ \t])*\n$";
     err = regcomp (&preg_reg, operateur_reg_regex,  REG_EXTENDED);
     regex_t preg_dir;
-    const char *operateur_dir_regex = "^[ \t]*([A-Z]{3,5})[ \t]+\\[([2-3][0-9]{1,3})\\]([ \t])*(\n)$";
+    const char *operateur_dir_regex = "^[ \t]*([A-Z]{3,5})[ \t]+\\[([2-3][0-9]{1,3})\\]([ \t])*\n$";
     err = regcomp (&preg_dir, operateur_dir_regex,  REG_EXTENDED);
     regex_t preg_ind;
-    const char *operateur_ind_regex = "^[ \t]*([A-Z]{3,5})[ \t]+\\[R([0-7])\\]([ \t])*(\n)$";
+    const char *operateur_ind_regex = "^[ \t]*([A-Z]{3,5})[ \t]+\\[R([0-7])\\]([ \t])*\n$";
     err = regcomp (&preg_ind, operateur_ind_regex,  REG_EXTENDED);
     regex_t preg_imm;
-    const char *operateur_imm_regex = "^[ \t]*([A-Z]{3,5})[ \t]+#([1-9][0-9]{0,5})([ \t])*(\n)$";
+    const char *operateur_imm_regex = "^[ \t]*([A-Z]{3,5})[ \t]+#([1-9][0-9]{0,5})([ \t])*\n$";
     err = regcomp (&preg_imm, operateur_imm_regex,  REG_EXTENDED);
     
     //pour RET et HALT qui n'ont aucune opérande, la regex total est faite dans la première partie (dans la regex pour RET et HALP
@@ -252,20 +252,36 @@ mot * parse(char * file, int * nb_instruction){
                         printf ("STORE");
                         if(regexec (&preg_dirreg, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
                             get_operandes(chaine, pmatch, source, dest);
-                            tab_mot[*nb_instruction-1] = save_mot(STORE, REGDIR, 0, atoi(*dest)) ; //-1 car un tableau commence a 0 et ici nous incrémentons avant cette operation
+                            tab_mot[*nb_instruction-1] = save_mot(STORE, DIRREG, atoi(*source), 0) ; //-1 car un tableau commence a 0 et ici nous incrémentons avant cette operation
+                            *nb_instruction += 1;
+                            tab_mot[*nb_instruction-1] = save_brut(atoi(*dest));
+                            
+                            printf (" DIRREG %i %i", tab_mot[*nb_instruction-2].codage.source, tab_mot[*nb_instruction-1].brut);
+                        
+                        } else if(regexec (&preg_dirimm, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
+                            get_operandes(chaine, pmatch, source, dest);
+                            tab_mot[*nb_instruction-1] = save_mot(STORE, DIRIMM, 0, 0) ; //-1 car un tableau commence a 0 et ici nous incrémentons avant cette operation
+                            *nb_instruction += 1;
+                            tab_mot[*nb_instruction-1] = save_brut(atoi(*dest));
+                            *nb_instruction += 1;
+                            tab_mot[*nb_instruction-1] = save_brut(atoi(*source));
+                            
+                            printf (" DIRIMM %i %i", tab_mot[*nb_instruction-1].brut, tab_mot[*nb_instruction-2].brut);
+                        
+                        } else if(regexec (&preg_indreg, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
+                            get_operandes(chaine, pmatch, source, dest);
+                            tab_mot[*nb_instruction-1] = save_mot(STORE, INDREG, atoi(*source), atoi(*dest)) ; //-1 car un tableau commence a 0 et ici nous incrémentons avant cette operation
+                            //mot save_brut(int brut, int * nb_instr)
+                            
+                            printf (" INDREG %i %i", tab_mot[*nb_instruction-1].codage.source, tab_mot[*nb_instruction-1].codage.dest);
+                        
+                        } else if(regexec (&preg_indimm, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
+                            get_operandes(chaine, pmatch, source, dest);
+                            tab_mot[*nb_instruction-1] = save_mot(STORE, INDIMM, 0, atoi(*dest)) ; //-1 car un tableau commence a 0 et ici nous incrémentons avant cette operation
                             *nb_instruction += 1;
                             tab_mot[*nb_instruction-1] = save_brut(atoi(*source));
                             
                             printf (" DIRREG %i %i", tab_mot[*nb_instruction-1].brut, tab_mot[*nb_instruction-2].codage.dest);
-                        
-                        } else if(regexec (&preg_dirimm, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
-                            printf (" DIRIMM");
-                        
-                        } else if(regexec (&preg_indreg, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
-                            printf (" INDREG");
-                        
-                        } else if(regexec (&preg_indimm, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
-                            printf (" INDIMM");
                         } else{
                             *nb_instruction += 2000 + inutil;
                             return NULL;
@@ -274,7 +290,13 @@ mot * parse(char * file, int * nb_instruction){
         }else if (regexec (&preg_jmp, chaine, 0, NULL, 0) != REG_NOMATCH){
                         printf ("JMP");
                         if(regexec (&preg_imm, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
-                            printf ("IMM");
+                            get_operandes(chaine, pmatch, source, dest);
+                            //INDIMM car le IMM n'existe pas ni le IMMIMM
+                            tab_mot[*nb_instruction-1] = save_mot(JMP, INDIMM, 0, 0) ; //-1 car un tableau commence a 0 et ici nous incrémentons avant cette operation
+                            *nb_instruction += 1;
+                            tab_mot[*nb_instruction-1] = save_brut(atoi(*dest));
+                            
+                            printf (" IMM %i", tab_mot[*nb_instruction-1].brut);
                         
                         }  else{
                             *nb_instruction += 2000 + inutil;
@@ -284,7 +306,13 @@ mot * parse(char * file, int * nb_instruction){
         }else if (regexec (&preg_jeq, chaine, 0, NULL, 0) != REG_NOMATCH){
                         printf ("JEQ");
                         if(regexec (&preg_imm, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
-                            printf (" IMM");
+                            get_operandes(chaine, pmatch, source, dest);
+                            //INDIMM car le IMM n'existe pas ni le IMMIMM
+                            tab_mot[*nb_instruction-1] = save_mot(JEQ, INDIMM, 0, 0) ; //-1 car un tableau commence a 0 et ici nous incrémentons avant cette operation
+                            *nb_instruction += 1;
+                            tab_mot[*nb_instruction-1] = save_brut(atoi(*dest));
+                            
+                            printf (" IMM %i", tab_mot[*nb_instruction-1].brut);
                         
                         }  else{
                             *nb_instruction += 2000 + inutil;
@@ -294,7 +322,13 @@ mot * parse(char * file, int * nb_instruction){
         }else if (regexec (&preg_call, chaine, 0, NULL, 0) != REG_NOMATCH){
                         printf ("CALL");
                         if(regexec (&preg_imm, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
-                            printf (" IMM");
+                            get_operandes(chaine, pmatch, source, dest);
+                            //INDIMM car le IMM n'existe pas ni le IMMIMM
+                            tab_mot[*nb_instruction-1] = save_mot(CALL, INDIMM, 0, 0) ; //-1 car un tableau commence a 0 et ici nous incrémentons avant cette operation
+                            *nb_instruction += 1;
+                            tab_mot[*nb_instruction-1] = save_brut(atoi(*dest));
+                            
+                            printf (" IMM %i", tab_mot[*nb_instruction-1].brut);
                         
                         } else{
                             *nb_instruction += 2000 + inutil;
@@ -302,30 +336,56 @@ mot * parse(char * file, int * nb_instruction){
                         }
         //pour les RET    
         }else if (regexec (&preg_ret, chaine, 0, NULL, 0) != REG_NOMATCH){
+                        tab_mot[*nb_instruction-1] = save_mot(RET, INDIMM, 0, 0) ;
                         printf ("RET");
+                        
         //pour les PUSH
         }else if (regexec (&preg_push, chaine, 0, NULL, 0) != REG_NOMATCH){
                         printf ("PUSH");
                         if(regexec (&preg_reg, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
-                            printf (" REG");
+                             get_operandes(chaine, pmatch, source, dest);
+                            //REGREG car le REG n'existe pas
+                            tab_mot[*nb_instruction-1] = save_mot(PUSH, REGREG, atoi(*dest), 0) ;
+                            printf (" REG %i", tab_mot[*nb_instruction-1].codage.source);
                         
                         } else if(regexec (&preg_imm, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
-                            printf (" IMM");
+                            get_operandes(chaine, pmatch, source, dest);
+                            //INDIMM car le IMM n'existe pas ni le IMMIMM
+                            tab_mot[*nb_instruction-1] = save_mot(PUSH, INDIMM, 0, 0) ; //-1 car un tableau commence a 0 et ici nous incrémentons avant cette operation
+                            *nb_instruction += 1;
+                            tab_mot[*nb_instruction-1] = save_brut(atoi(*dest));
+                            
+                            printf (" IMM %i", tab_mot[*nb_instruction-1].brut);
                         
                         } else if(regexec (&preg_dir, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
-                            printf (" DIR");
+                            get_operandes(chaine, pmatch, source, dest);
+                            //REGDIR car le DIR n'existe pas ni le DIRDIR
+                            tab_mot[*nb_instruction-1] = save_mot(PUSH, REGDIR, 0, 0) ; //-1 car un tableau commence a 0 et ici nous incrémentons avant cette operation
+                            *nb_instruction += 1;
+                            tab_mot[*nb_instruction-1] = save_brut(atoi(*dest));
+                            
+                            printf (" DIR %i", tab_mot[*nb_instruction-1].brut);
                         
                         } else if(regexec (&preg_ind, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
-                            printf (" IND");
+                            get_operandes(chaine, pmatch, source, dest);
+                            //REGIND seul mode dispo pour indiqué que c'est IND
+                            tab_mot[*nb_instruction-1] = save_mot(PUSH, REGIND, atoi(*dest), 0) ;
+                            printf (" IND %i", tab_mot[*nb_instruction-1].codage.source);
                         } else{
                             *nb_instruction += 2000 + inutil;
                             return NULL;
                         }
-        //pour les pop    
+        //pour les pop
+        
         }else if (regexec (&preg_pop, chaine, 0, NULL, 0) != REG_NOMATCH){
                         printf ("POP");
+                        
+                        
                         if(regexec (&preg_reg, chaine, 0, pmatch, 0) != REG_NOMATCH){
-                            printf (" REG");
+                             get_operandes(chaine, pmatch, source, dest);
+                            //REGREG car le REG n'existe pas
+                            tab_mot[*nb_instruction-1] = save_mot(POP, REGREG, atoi(*dest), 0) ;
+                            printf (" REG %i", tab_mot[*nb_instruction-1].codage.source);
                         
                         } else if(regexec (&preg_dir, chaine, 0, pmatch, 0) != REG_NOMATCH){
                             printf (" DIR");
@@ -337,7 +397,7 @@ mot * parse(char * file, int * nb_instruction){
                             *nb_instruction += 2000 + inutil;
                             return NULL;
                         }
-          //HALT fin du code asm donc on quitte  
+         //HALT fin du code asm donc on quitte  
         }else if (regexec (&preg_halt, chaine, 0, NULL, 0) != REG_NOMATCH){
                         printf ("HALT");
                         fclose(fichier);

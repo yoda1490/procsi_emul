@@ -36,6 +36,8 @@ int init_gui()
 	noecho();
 	init_pair(1, COLOR_CYAN, COLOR_BLACK);
         init_pair(2, COLOR_GREEN, COLOR_BLACK);
+        init_pair(3, COLOR_RED, COLOR_BLACK);
+        
 
 	/* Initialize the window parameters */
 	init_win_params(&win);
@@ -43,7 +45,7 @@ int init_gui()
 
 	attron(COLOR_PAIR(1));
         printw("F2: Ouvrir un fichier");
-        printw("\t F3: Lancer l'émulation");
+        printw("\t F3: Lancer l'émulation d'un exemple");
 	printw("\t F5: Quitter");
         attron(A_BOLD);
         attron(COLOR_PAIR(2));
@@ -155,11 +157,21 @@ void draw_menu(char ** menu_liste, void (*ptrfonction)(int,const char *, char *)
                         exit(0);
             
                 case KEY_F(2):
+                        
                         files = list_file("", &i);
-                        clean_menu(my_menu);
-                        clean_window(my_menu_win);
+                        if(menu_alrdy_dlt == 0){
+                            menu_alrdy_dlt = 1;
+                            clean_menu(my_menu);
+                            clean_window(my_menu_win);
+                        }
                         draw_menu(files, execute_file_menu, "", i);
                         return;
+            case KEY_F(3):
+                        mvprintw((3) ,(COLS-30)/2, "                              ");
+                        clean_menu(my_menu);
+                        clean_window(my_menu_win);
+                        execute_file_menu(0,"example.asm", "");
+                        break;
                     
                 case KEY_DOWN:
 		        menu_driver(my_menu, REQ_DOWN_ITEM);
@@ -179,6 +191,7 @@ void draw_menu(char ** menu_liste, void (*ptrfonction)(int,const char *, char *)
             
                 case 10:
                         move(20, 0);
+                        mvprintw((3) ,(COLS-30)/2, "                              ");
 			clrtoeol();
                         num_choix = item_index(current_item(my_menu));
                         strcpy(choix, item_name(current_item(my_menu)));
@@ -194,9 +207,11 @@ void draw_menu(char ** menu_liste, void (*ptrfonction)(int,const char *, char *)
 		}
                 wrefresh(my_menu_win);
 	}
-        if(menu_alrdy_dlt == 0)
+        if(menu_alrdy_dlt == 0){
+                menu_alrdy_dlt = 1;
                 clean_menu(my_menu);
-        clean_window(my_menu_win);
+                clean_window(my_menu_win);
+        }
         
        
         
@@ -238,7 +253,12 @@ void execute_main_menu(int choice,const char * choice_name, char * folder){
         
     }
     
-    if(choice == 2){
+    else if(choice == 1){
+        execute_file_menu(0,"example.asm", "");
+        
+    }
+    
+    else if(choice == 2){
         mvprintw(LINES-2, 0, "Exiting...");
         endwin();			/* End curses mode		  */
         exit(0);
@@ -260,11 +280,36 @@ void execute_file_menu(int choice,const char * choice_name, char * folder){
          
          mvprintw(LINES-2, 0, "                                                        ");
          mvprintw(LINES-1, 0, "%s                                                                ", folder_complet);
-         int taille_mem;
-         mot * mem = parse("example.asm", &taille_mem);
+         int nb_instr;
+         mot * mem = parse(folder_complet, &nb_instr);
          int reg[8] = {0,0,0,0, 0,0,0,0};
          int taille_reg = 8;
-         display_execution(6, mem, taille_mem, reg, taille_reg, 1, 2, 3);
+         
+        attron(A_BOLD);
+        attron(COLOR_PAIR(2));
+        
+         mvprintw(LINES-3, 0, "Compilation en cours ...");
+         
+         attron(COLOR_PAIR(3));
+        
+         if(nb_instr == -1){
+            mvprintw(LINES-3, 0, "Erreur lors de l'ouverture du fichier");
+        }else if(nb_instr == -2){
+            mvprintw(LINES-3, 0, "Instruction HALT en fin de fichier non trouvé");
+        }else if(nb_instr > 2000 && nb_instr <= 4000){
+            mvprintw(LINES-3, 0, "Erreur: mode d'adressage non disponible pour l'opérateur ligne %i", nb_instr-2000);
+        }else if(nb_instr > 4000 && nb_instr <= 6000){
+            mvprintw(LINES-3, 0, "Erreur: opérateur inconnue ligne %i", nb_instr-4000);
+        }else{
+            attroff(A_BOLD);
+            attroff(COLOR_PAIR(1));
+            mvprintw(LINES-3, 0, "\n\nExecution ...\n");
+            display_execution(6, mem, nb_instr, reg, taille_reg, 1, 2, 3);
+        }
+        
+        refresh();
+        attroff(A_BOLD);
+	attroff(COLOR_PAIR(1));
         
     }
     else if(exists(folder_complet) == 2){

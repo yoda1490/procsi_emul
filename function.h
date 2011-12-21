@@ -12,6 +12,8 @@
 #ifndef FUNCTION_H
 #define FUNCTION_H
 
+
+
 /**
     * \union mot
     * \brief Mot en mémoire.
@@ -80,6 +82,10 @@ typedef enum
    UNKOWN   /*!< Instruction inconnue. */
 }
 mnemonique;
+
+
+//mémoire contenant toutes les instrcutions
+mot mem_prog[1999];
 
 /**
  * \fn void add(int* source, int* dest)

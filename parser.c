@@ -17,8 +17,8 @@ mot * parse(char * file, int * nb_instruction){
     int caractereActuel = 0;
     char chaine[TAILLE_MAX] = "";
     fichier = fopen(file, "r");
-    mot* tab_mot = malloc(sizeof(mot)*MAX_INSTRUCTION); //pour une gestion plus simplifier on déclare un tableau de 1999, comme sa pas d'erreur de segmentation si le codeur ASM accès des des zones non déclaré ...
-    
+    mot* tab_mot = &mem_prog;
+            
     mot mot_temp; //mot temporaire que l'on va placer dans tab_mot
     
     

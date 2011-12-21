@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.6)
 project (Procsi_emul)
 find_package(Curses)
-target_link_libraries(ProcSI ${CURSES_LIBRARIES}) 
 add_executable(ProcSI main.c parser.c function.c interface.c)
+target_link_libraries(ProcSI ${CURSES_LIBRARIES}) 

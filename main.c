@@ -42,5 +42,6 @@ int main(int argc, char* argv[]){
     // Lancer l'interface
    //init_gui();
     int nb_instr;
-    parse("example.asm", &nb_instr);
+    init_gui();
+    //parse("example.asm", &nb_instr);
 }

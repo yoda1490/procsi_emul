@@ -21,7 +21,7 @@ char *choices[] = {
 
 
 
-int init_gui()
+int main()
 {	WIN win;
 	int ch;
         int i;

@@ -1,1 +1,8 @@
-this is my readme
+to compile and link just do
+
+cmake . && make
+
+
+to run do
+
+./ProcSI

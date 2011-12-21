@@ -11,9 +11,16 @@
 #include <ncurses.h>
 #include <menu.h>
 
+#ifndef ARRAY_SIZE
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
+
+
+#ifndef CTRLD
 #define CTRLD 	4
 
+
+#ifndef FILE_MAX
+#define FILE_MAX 100
 
 
 typedef struct _win_border_struct {
@@ -51,3 +58,11 @@ void execute_file_menu(int choice,const char * choice_name, char * folder);
 void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_instruction, int* registres,int nb_reg, int PC, int SP, int SR);
 char * codeop_tostring(int codeop);
 char * mode_tostring(int a_mode);
+
+
+#endif
+
+#endif
+
+
+#endif

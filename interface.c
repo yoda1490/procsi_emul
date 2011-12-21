@@ -354,6 +354,15 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
         int menu_register_alrdy_dlt = 0; //pour ne pas supprimer le menu 2 fois --> évite les erreur de segmentation lorsqu'on quitte
         
         
+        // for memory
+        char  tab_memory[2000][14];
+        ITEM **memory_items;
+	WINDOW *memory_win;
+	MENU *memory_menu;
+	memory_items = (ITEM **)calloc(nb_reg + 1 +3, sizeof(ITEM *)); //+3 pour PC SP et SR
+        int menu_memory_alrdy_dlt = 0; //pour ne pas supprimer le menu 2 fois --> évite les erreur de segmentation lorsqu'on quitte
+        
+        
         char dest_string[5];
         char source_string[5];
         char brut_string[10];
@@ -371,6 +380,9 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
         
         //allocation de mémoire pour le tabeau de registre sous forme de string
         tab_register = (char**) malloc (nb_reg* sizeof(char *));
+        
+        //pas de malloc pour la tab_memory puisqu'elle a une taille de 2000 dans tout les cas
+        
         
         int num_choix;
         char * choix = NULL;
@@ -429,7 +441,7 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
         
         
         
-        
+        //pour les registres
         for(i = 0; i < nb_reg; ++i){
                 //contient le registre sous forme de string par exemple R1 ou PC
                 tab_register[i] = malloc(3 * sizeof(char));
@@ -447,6 +459,22 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
                 register_items[nb_reg+2] = new_item("SR:", sr_string);  //register_items[10]
                 //pour cacher la selection du premier registre
                 item_opts_off(register_items[0], O_SELECTABLE);
+                
+                
+                
+       //pour la mémoire
+        for(i = 2000; i < 3999; ++i){
+                //contient le registre sous forme de string par exemple R1 ou PC
+                //tab_memory[i] = malloc(8 * sizeof(char));
+                
+                
+                 mvprintw(3, 0, "%i", mem_prog[i].brut);
+                 //tab_memory[i] = "1\0";
+                snprintf(tab_memory[i], 13,  "%i: %d\0",i, mem_prog[i]);
+                
+                //mvprintw(i+2, 0, "%s", tab_memory[i]);
+                //register_items[i] = new_item(tab_register[i], ""); //ajoute les éléments dans mon tableau d'item
+        }
         
         
 	instruction_menu = new_menu((ITEM **)instructions_items); //creer un menu contenant les instructions

@@ -17,9 +17,9 @@ void parse(char * file, int * nb_instruction){
     int caractereActuel = 0;
     char chaine[TAILLE_MAX] = "";
     fichier = fopen(file, "r");
-    mot* tab_mot = &mem_prog;
+    mot* tab_mot = mem_prog;
             
-     mot mot_temp; //mot temporaire que l'on va placer dans tab_mot
+     //mot mot_temp; //mot temporaire que l'on va placer dans tab_mot
     
     
     int err; //erreur de regex ... les erreurs ne sont pas testé ici car on suppose toutes les regex valide

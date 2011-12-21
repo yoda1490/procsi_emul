@@ -281,9 +281,10 @@ void execute_file_menu(int choice,const char * choice_name, char * folder){
          mvprintw(LINES-2, 0, "                                                        ");
          mvprintw(LINES-1, 0, "%s                                                                ", folder_complet);
          int nb_instr;
-         mot * mem = parse(folder_complet, &nb_instr);
-         int reg[8] = {0,0,0,0, 0,0,0,0};
-         int taille_reg = 8;
+         parse(folder_complet, &nb_instr);
+
+         /* int reg[8] = {0,0,0,0, 0,0,0,0};*/
+         int taille_reg = 8; 
          
         attron(A_BOLD);
         attron(COLOR_PAIR(2));
@@ -304,7 +305,7 @@ void execute_file_menu(int choice,const char * choice_name, char * folder){
             attroff(A_BOLD);
             attroff(COLOR_PAIR(1));
             mvprintw(LINES-3, 0, "\n\nExecution ...\n");
-            display_execution(6, mem, nb_instr, reg, taille_reg, 1, 2, 3);
+            display_execution(6, mem_prog, nb_instr, reg, taille_reg, 1, 2, 3);
         }
         
         refresh();

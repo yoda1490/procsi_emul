@@ -12,6 +12,14 @@
 #ifndef FUNCTION_H
 #define FUNCTION_H
 
+#define TAILLE_MEM 4500
+
+#define ADR_INSTR_MIN 0
+#define ADR_INSTR_MAX 1999
+#define ADR_DONNEE_MIN 2000
+#define ADR_DONNEE_MAX 3999
+#define ADR_PILE_MIN 4500 // Le sommet de la pile croît vers les adresses inférieur (dans le sujet de Lippi)
+#define ADR_PILE_MAX 4000
 
 
 /**
@@ -84,8 +92,12 @@ typedef enum
 mnemonique;
 
 
-//mémoire contenant toutes les instrcutions
-mot mem_prog[1999];
+//mémoire du programme
+mot mem_prog[TAILLE_MEM];
+// registres généraux
+int reg[8];
+// registres spécialisés
+int PC, SP, SR;
 
 /**
  * \fn void add(int* source, int* dest)

@@ -1,4 +1,5 @@
-
+#ifndef PARSER_H
+#define PARSER_H
 
 #include <regex.h>
 
@@ -7,3 +8,4 @@ mot save_brut(int brut);
 mot save_mot(mnemonique operateur, mode le_mode, int source, int dest);
 
 
+#endif

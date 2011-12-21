@@ -13,58 +13,11 @@
 #include "interface.h"
 
 
-
-#define FILE_MAX 100
-
-
-//to delete after test
-//to delete after test
-//to delete after test
-//to delete after test
-//to delete after test
-//to delete after test
-//to delete after test
-//to delete after test
-
-
-mot mem[12] = {
-        {.codage = {ADD, REGREG, 1,2 }},
-        {.codage = {STORE, DIRREG, 1,0}},
-        {.brut = 2000                 },
-        {.codage = {LOAD, REGIMM, 0,6}},
-        {.brut = 2000                },
-        {.codage = {ADD, REGDIR, 0,7}},
-        {.brut = 2000                 },
-        {.codage = {ADD, REGIMM, 0, 3}},
-        {.brut = 1                    },
-        {.codage = {ADD, REGIND, 6, 4}}
-};
-
-
-int taille_mem = 12;
-int taille_reg = 8;
-int reg[8] = {0,0,0,0,0,0,0,0};
-int PC,SP,SR;
-
-//to delete after test
-//to delete after test
-//to delete after test
-//to delete after test
-//to delete after test
-//to delete after test
-//to delete after test
-//to delete after test
-//to delete after test
-//to delete after test
-//to delete after test
-
-
-
-
- 
-//dans e main qui sera remplacer par un init_gui(void (*ptrfonction)(char **), void (*ptrfonction)(char *))
-//il faudra donner comme paramètre 1: la fonction qui traitera le fichier à parser
-//                                 2: la fonction qui parsera le fichier
+char *choices[] = {
+                        "Ouvrir un fichier Assembleur",
+                        "Lancer l'émulation d'un exemple",
+                        "Exit",
+                  };
 
 
 
@@ -333,7 +286,7 @@ void execute_file_menu(int choice,const char * choice_name, char * folder){
          
          mvprintw(LINES-2, 0, "                                                        ");
          mvprintw(LINES-1, 0, "%s                                                                ", folder_complet);
-         display_execution(6, mem, taille_mem, reg, taille_reg, 1, 2, 3);
+         //display_execution(6, mem, taille_mem, reg, taille_reg, 1, 2, 3);
         
     }
     else if(exists(folder_complet) == 2){

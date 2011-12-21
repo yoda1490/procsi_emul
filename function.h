@@ -9,6 +9,9 @@
  *
  */
 
+#ifndef FUNCTION_H
+#define FUNCTION_H
+
 /**
     * \union mot
     * \brief Mot en mémoire.
@@ -144,3 +147,6 @@ void stateRegister();
  * \param longueur Nombre d'adresse mémoire à afficher.
  */
 void viewMemory(int adresse, int taille, mot* mem);
+
+
+#endif

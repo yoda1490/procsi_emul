@@ -11,6 +11,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <ncurses.h>
+#include <menu.h>
 #include "function.h"
 #include "interface.h"
 #include "parser.h"
@@ -27,21 +29,21 @@
 /* Variables globales du simulateur */
 int reg[8];
 int PC, SP, SR;
-mot* mem;
+//mot* mem;
 
 int main(int argc, char* argv[]){
    
     /* Initialisation des registres */
     PC = 0;
-    SP = ADR_PILE_MIN;
+    SP = 0;
     SR = 0;
 
     /* Allocation de la mémoire */
-    mem = malloc(sizeof(mot)*TAILLE_MEM);
+    //mem = malloc(sizeof(mot)*TAILLE_MEM);
 
     // Lancer l'interface
-   //init_gui();
-    int nb_instr;
+    
     init_gui();
+    int nb_instr;
     //parse("example.asm", &nb_instr);
 }

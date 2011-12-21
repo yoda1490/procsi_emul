@@ -14,6 +14,7 @@
 #include "function.h"
 #include <string.h>
 
+
 void stateRegister(int* reg, int PC, int SP, int SR){
         printf("\n\nEtat des registres :");
 

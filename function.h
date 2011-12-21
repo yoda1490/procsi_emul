@@ -77,7 +77,6 @@ typedef enum
    PUSH,    /*!< Instruction PUSH. */
    POP,     /*!< Instruction POP. */
    HALT,     /*!< Instruction HALT. */
-   //ERR,      /*!< Erreur. */
    UNKOWN   /*!< Instruction inconnue. */
 }
 mnemonique;

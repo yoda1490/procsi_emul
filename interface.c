@@ -11,6 +11,7 @@
 
 #include "function.h"
 #include "interface.h"
+#include "parser.h"
 
 
 char *choices[] = {
@@ -29,8 +30,8 @@ int init_gui()
 
 	initscr();			/* Start curses mode 		*/
 	start_color();			/* Start the color functionality */
-	cbreak();			/* Line buffering disabled, Pass on
-					 * everty thing to me 		*/
+	cbreak();			/* Line buffering disabled, Pass on */
+					/* everty thing to me 		*/
 	keypad(stdscr, TRUE);		/* I need that nifty F1 	*/
 	noecho();
 	init_pair(1, COLOR_CYAN, COLOR_BLACK);
@@ -47,12 +48,12 @@ int init_gui()
         attron(A_BOLD);
         attron(COLOR_PAIR(2));
         char chaine[]="Welcome to ProcSI emulator";
-        mvprintw((LINES/2) -3,(COLS-strlen(chaine))/2,chaine);
+        mvprintw((3) ,(COLS-strlen(chaine))/2,chaine);
         attroff(A_BOLD);
 	refresh();
 	attroff(COLOR_PAIR(1));
 	
-	create_box(&win, TRUE);
+	
         draw_menu(choices, execute_main_menu, "", 3);
         
 	while((ch = getch()) != KEY_F(5))
@@ -97,34 +98,7 @@ void print_win_params(WIN *p_win)
 	refresh();
 #endif
 }
-void create_box(WIN *p_win, bool flag)
-{	int i, j;
-	int x, y, w, h;
 
-	x = p_win->startx;
-	y = p_win->starty;
-	w = p_win->width;
-	h = p_win->height;
-
-	if(flag == TRUE)
-	{	mvaddch(y, x, p_win->border.tl);
-		mvaddch(y, x + w, p_win->border.tr);
-		mvaddch(y + h, x, p_win->border.bl);
-		mvaddch(y + h, x + w, p_win->border.br);
-		mvhline(y, x + 1, p_win->border.ts, w - 1);
-		mvhline(y + h, x + 1, p_win->border.bs, w - 1);
-		mvvline(y + 1, x, p_win->border.ls, h - 1);
-		mvvline(y + 1, x + w, p_win->border.rs, h - 1);
-
-	}
-	else
-		for(j = y; j <= y + h; ++j)
-			for(i = x; i <= x + w; ++i)
-				mvaddch(j, i, ' ');
-				
-	refresh();
-
-}
 
 void draw_menu(char ** menu_liste, void (*ptrfonction)(int,const char *, char *), char * folder, int taille_menu){
         ITEM **my_items;
@@ -286,7 +260,11 @@ void execute_file_menu(int choice,const char * choice_name, char * folder){
          
          mvprintw(LINES-2, 0, "                                                        ");
          mvprintw(LINES-1, 0, "%s                                                                ", folder_complet);
-         //display_execution(6, mem, taille_mem, reg, taille_reg, 1, 2, 3);
+         int taille_mem;
+         mot * mem = parse("example.asm", &taille_mem);
+         int reg[8] = {0,0,0,0, 0,0,0,0};
+         int taille_reg = 8;
+         display_execution(6, mem, taille_mem, reg, taille_reg, 1, 2, 3);
         
     }
     else if(exists(folder_complet) == 2){

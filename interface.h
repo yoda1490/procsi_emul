@@ -15,6 +15,9 @@
 #include <menu.h>
 
 
+
+
+
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 
 
@@ -42,7 +45,6 @@ typedef struct _WIN_struct {
 int init_gui();
 void init_win_params(WIN *p_win);
 void print_win_params(WIN *p_win);
-void create_box(WIN *win, bool flag);
 void draw_menu(char ** menu_liste, void (*ptrfonction)(int, const char *, char *), char * folder, int taille_menu);
 void print_in_middle(WINDOW *win, int starty, int startx, int width, char *string, chtype color);
 void execute_main_menu(int choice,const char * choice_name, char * folder);

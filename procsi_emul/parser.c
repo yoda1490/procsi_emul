@@ -4,8 +4,7 @@
 #include <sys/types.h>
 #include <regex.h>
 
-
-#include "fonction.h"
+#include "function.h"
 #include "parser.h"
 
 
@@ -28,8 +27,8 @@ mot * parse(char * file, int * nb_instruction){
     
     //pour récupéré source et dest
     size_t nmatch = 0;
-    regmatch_t *pmatch = NULL;
-    pmatch = malloc (sizeof (*pmatch) * (nmatch+1));  
+    regmatch_t pmatch[nmatch];
+      
     
     
     
@@ -133,8 +132,8 @@ mot * parse(char * file, int * nb_instruction){
             *nb_instruction += 1; //ne pas oublier d'incrementer le nombre d'instruction 
             //printf("%i", *nb_instruction);
             
-           char ** source = malloc (sizeof(char **));
-           char ** dest = malloc (sizeof(char **));
+           char * source[1];
+           char * dest[1] ;
             
             //pour les ADD
             if (regexec (&preg_add, chaine, 0, NULL, 0) != REG_NOMATCH){
@@ -493,7 +492,7 @@ mot save_brut(int brut){
     
 }
 
-int main(int argc, char *argv[])
+int test(int argc, char *argv[])
 {
     int nb_instr = 0; 
     parse("example.asm", &nb_instr);

@@ -492,7 +492,7 @@ mot save_brut(int brut){
     
 }
 
-//int main(int argc, char *argv[])
+int test(int argc, char *argv[])
 {
     int nb_instr = 0; 
     parse("example.asm", &nb_instr);

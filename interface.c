@@ -355,11 +355,11 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
         
         
         // for memory
-        char  tab_memory[2000][14];
-        ITEM **memory_items;
+        char memory_temp[2000][14];
+        ITEM ** memory_items;
 	WINDOW *memory_win;
-	MENU *memory_menu;
-	memory_items = (ITEM **)calloc(nb_reg + 1 +3, sizeof(ITEM *)); //+3 pour PC SP et SR
+        MENU *memory_menu;
+	memory_items = (ITEM **)calloc(2000, sizeof(ITEM *)); 
         int menu_memory_alrdy_dlt = 0; //pour ne pas supprimer le menu 2 fois --> évite les erreur de segmentation lorsqu'on quitte
         
         
@@ -382,6 +382,7 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
         tab_register = (char**) malloc (nb_reg* sizeof(char *));
         
         //pas de malloc pour la tab_memory puisqu'elle a une taille de 2000 dans tout les cas
+        //tab_memory = (char**) malloc (2000* sizeof(char *));
         
         
         int num_choix;
@@ -463,31 +464,32 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
                 
                 
        //pour la mémoire
-        for(i = 2000; i < 3999; ++i){
+        for(i = 0; i < 2000; ++i){
                 //contient le registre sous forme de string par exemple R1 ou PC
-                //tab_memory[i] = malloc(8 * sizeof(char));
+                 //tab_memory[i] = malloc(8 * sizeof(char));
                 
                 
-                 mvprintw(3, 0, "%i", mem_prog[i].brut);
-                 //tab_memory[i] = "1\0";
-                snprintf(tab_memory[i], 13,  "%i: %d\0",i, mem_prog[i]);
                 
-                //mvprintw(i+2, 0, "%s", tab_memory[i]);
-                //register_items[i] = new_item(tab_register[i], ""); //ajoute les éléments dans mon tableau d'item
+                snprintf(memory_temp[i], 12, "%i: %u", i+2000, mem_prog[i+2000].brut);
+                strncat(memory_temp[i], "\0", 1);
+                
+                memory_items[i] = new_item(memory_temp[i], "");
+
         }
         
         
-	instruction_menu = new_menu((ITEM **)instructions_items); //creer un menu contenant les instructions
-        
+	instruction_menu = new_menu((ITEM **)instructions_items); //creer un menu contenant les instructions 
         register_menu = new_menu((ITEM **)register_items); //creer un menu contenant les registres
+        memory_menu = new_menu((ITEM **)memory_items); //creer un menu contenant les cases mémoire
 	mvprintw(LINES - 2, 0, "F9 to close the menu"); 
         
         
         
         instructions_win = newwin((LINES-4)/2, 40 , 3, (COLS/2)- (COLS-4)/4); //créer une nouvelle fenetre pour les instructions
         register_win = newwin(16, 20 , 3, (COLS/2) + 10); //créer une nouvelle fenetre pour les registres
+        memory_win = newwin((LINES-4)/2, 40 , 3+(LINES-4)/2, (COLS/2)- (COLS-4)/4); 
         
-        keypad(instructions_win, TRUE); //active le clavier sur les instructions
+        keypad(memory_win, TRUE); //active le clavier sur les instructions
        
         
         
@@ -501,11 +503,17 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
         set_menu_format(register_menu, 13, 1);
         
         
+        set_menu_win(memory_menu, memory_win); //set main menu
+        set_menu_sub(memory_menu, derwin(memory_win, ((LINES-4)/2)-4, 38, 3, 1)); // set sub window
+        set_menu_format(memory_menu, ((LINES-4)/2)-4, 1);
+        
+        
         
         
        /* Set menu mark to the string " * " */
         set_menu_mark(instruction_menu, " * ");
         set_menu_mark(register_menu, "");
+        set_menu_mark(memory_menu, " --> ");
         
         
         /* Print a border around the main window and print a title */
@@ -522,14 +530,25 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
 	mvwaddch(register_win, 2, 19, ACS_RTEE);
 	refresh();
         
+        
+        box(memory_win, 0, 0);
+        print_in_middle(memory_win, 1, 0, 40, "Mémoire", COLOR_PAIR(1));
+	mvwaddch(memory_win, 2, 0, ACS_LTEE);
+	mvwhline(memory_win, 2, 1, ACS_HLINE, 43);
+	mvwaddch(memory_win, 2, 39, ACS_RTEE);
+	refresh();
+        
+        
 	post_menu(instruction_menu);
         post_menu(register_menu);
+        post_menu(memory_menu);
         
         //on se place sur l'instruction en cour
         set_current_item (instruction_menu, item_en_cour);
         
 	wrefresh(instructions_win);
         wrefresh(register_win);
+        wrefresh(memory_win);
        
 
 	while((c = getch()) != KEY_F(9) && c != 32)
@@ -544,19 +563,19 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
                         draw_menu(files, execute_file_menu, "", i);
                         
                 case KEY_DOWN:
-		        menu_driver(instruction_menu, REQ_DOWN_ITEM);
+		        menu_driver(memory_menu, REQ_DOWN_ITEM);
 			break;
 		case KEY_UP:
-			menu_driver(instruction_menu, REQ_UP_ITEM);
+			menu_driver(memory_menu, REQ_UP_ITEM);
 			break;
                 
             
-                //case KEY_NPAGE:
-		//	menu_driver(my_menu, REQ_SCR_DPAGE);
-		//	break;
-                //case KEY_PPAGE:
-		//	menu_driver(my_menu, REQ_SCR_UPAGE);
-		//	break;
+                case KEY_NPAGE:
+			menu_driver(memory_menu, REQ_SCR_DPAGE);
+			break;
+                case KEY_PPAGE:
+			menu_driver(memory_menu, REQ_SCR_UPAGE);
+			break;
         
             
                 case 10:
@@ -568,6 +587,7 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
 
 		}
                 wrefresh(instructions_win);
+                wrefresh(memory_win);
 	}
         if(menu_instruction_alrdy_dlt == 0){
                 clean_menu(instruction_menu);

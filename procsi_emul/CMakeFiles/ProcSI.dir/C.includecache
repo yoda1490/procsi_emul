@@ -6,19 +6,19 @@
 
 #IncludeRegexTransform: 
 
-/home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/function.c
+/home/yoda/polytech/[C]/ProjetC2/procsi_emul/function.c
 stdio.h
 -
 stdlib.h
 -
 function.h
-/home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/function.h
+/home/yoda/polytech/[C]/ProjetC2/procsi_emul/function.h
 string.h
 -
 
-/home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/function.h
+/home/yoda/polytech/[C]/ProjetC2/procsi_emul/function.h
 
-/home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/interface.c
+/home/yoda/polytech/[C]/ProjetC2/procsi_emul/interface.c
 ncurses.h
 -
 stdio.h
@@ -38,29 +38,29 @@ unistd.h
 regex.h
 -
 function.h
-/home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/function.h
+/home/yoda/polytech/[C]/ProjetC2/procsi_emul/function.h
 interface.h
-/home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/interface.h
+/home/yoda/polytech/[C]/ProjetC2/procsi_emul/interface.h
 
-/home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/interface.h
+/home/yoda/polytech/[C]/ProjetC2/procsi_emul/interface.h
 ncurses.h
 -
 menu.h
 -
 
-/home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/main.c
+/home/yoda/polytech/[C]/ProjetC2/procsi_emul/main.c
 stdio.h
 -
 stdlib.h
 -
 function.h
-/home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/function.h
+/home/yoda/polytech/[C]/ProjetC2/procsi_emul/function.h
 interface.h
-/home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/interface.h
+/home/yoda/polytech/[C]/ProjetC2/procsi_emul/interface.h
 parser.h
-/home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/parser.h
+/home/yoda/polytech/[C]/ProjetC2/procsi_emul/parser.h
 
-/home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/parser.c
+/home/yoda/polytech/[C]/ProjetC2/procsi_emul/parser.c
 stdio.h
 -
 string.h
@@ -72,11 +72,11 @@ sys/types.h
 regex.h
 -
 function.h
-/home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/function.h
+/home/yoda/polytech/[C]/ProjetC2/procsi_emul/function.h
 parser.h
-/home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/parser.h
+/home/yoda/polytech/[C]/ProjetC2/procsi_emul/parser.h
 
-/home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/parser.h
+/home/yoda/polytech/[C]/ProjetC2/procsi_emul/parser.h
 regex.h
 -
 

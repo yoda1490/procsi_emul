@@ -35,10 +35,10 @@ RM = /usr/bin/cmake -E remove -f
 CMAKE_EDIT_COMMAND = /usr/bin/ccmake
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre
+CMAKE_SOURCE_DIR = /home/yoda/polytech/[C]/ProjetC2/procsi_emul
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre
+CMAKE_BINARY_DIR = /home/yoda/polytech/[C]/ProjetC2/procsi_emul
 
 # Include any dependencies generated for this target.
 include CMakeFiles/ProcSI.dir/depend.make
@@ -51,9 +51,9 @@ include CMakeFiles/ProcSI.dir/flags.make
 
 CMakeFiles/ProcSI.dir/main.c.o: CMakeFiles/ProcSI.dir/flags.make
 CMakeFiles/ProcSI.dir/main.c.o: main.c
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/CMakeFiles $(CMAKE_PROGRESS_1)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/yoda/polytech/[C]/ProjetC2/procsi_emul/CMakeFiles $(CMAKE_PROGRESS_1)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building C object CMakeFiles/ProcSI.dir/main.c.o"
-	/usr/bin/gcc  $(C_DEFINES) $(C_FLAGS) -o CMakeFiles/ProcSI.dir/main.c.o   -c /home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/main.c
+	/usr/bin/gcc  $(C_DEFINES) $(C_FLAGS) -o CMakeFiles/ProcSI.dir/main.c.o   -c /home/yoda/polytech/[C]/ProjetC2/procsi_emul/main.c
 
 CMakeFiles/ProcSI.dir/main.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/ProcSI.dir/main.c.i"
@@ -74,9 +74,9 @@ CMakeFiles/ProcSI.dir/main.c.o.provides.build: CMakeFiles/ProcSI.dir/main.c.o
 
 CMakeFiles/ProcSI.dir/parser.c.o: CMakeFiles/ProcSI.dir/flags.make
 CMakeFiles/ProcSI.dir/parser.c.o: parser.c
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/CMakeFiles $(CMAKE_PROGRESS_2)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/yoda/polytech/[C]/ProjetC2/procsi_emul/CMakeFiles $(CMAKE_PROGRESS_2)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building C object CMakeFiles/ProcSI.dir/parser.c.o"
-	/usr/bin/gcc  $(C_DEFINES) $(C_FLAGS) -o CMakeFiles/ProcSI.dir/parser.c.o   -c /home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/parser.c
+	/usr/bin/gcc  $(C_DEFINES) $(C_FLAGS) -o CMakeFiles/ProcSI.dir/parser.c.o   -c /home/yoda/polytech/[C]/ProjetC2/procsi_emul/parser.c
 
 CMakeFiles/ProcSI.dir/parser.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/ProcSI.dir/parser.c.i"
@@ -97,9 +97,9 @@ CMakeFiles/ProcSI.dir/parser.c.o.provides.build: CMakeFiles/ProcSI.dir/parser.c.
 
 CMakeFiles/ProcSI.dir/function.c.o: CMakeFiles/ProcSI.dir/flags.make
 CMakeFiles/ProcSI.dir/function.c.o: function.c
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/CMakeFiles $(CMAKE_PROGRESS_3)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/yoda/polytech/[C]/ProjetC2/procsi_emul/CMakeFiles $(CMAKE_PROGRESS_3)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building C object CMakeFiles/ProcSI.dir/function.c.o"
-	/usr/bin/gcc  $(C_DEFINES) $(C_FLAGS) -o CMakeFiles/ProcSI.dir/function.c.o   -c /home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/function.c
+	/usr/bin/gcc  $(C_DEFINES) $(C_FLAGS) -o CMakeFiles/ProcSI.dir/function.c.o   -c /home/yoda/polytech/[C]/ProjetC2/procsi_emul/function.c
 
 CMakeFiles/ProcSI.dir/function.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/ProcSI.dir/function.c.i"
@@ -120,9 +120,9 @@ CMakeFiles/ProcSI.dir/function.c.o.provides.build: CMakeFiles/ProcSI.dir/functio
 
 CMakeFiles/ProcSI.dir/interface.c.o: CMakeFiles/ProcSI.dir/flags.make
 CMakeFiles/ProcSI.dir/interface.c.o: interface.c
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/CMakeFiles $(CMAKE_PROGRESS_4)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/yoda/polytech/[C]/ProjetC2/procsi_emul/CMakeFiles $(CMAKE_PROGRESS_4)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building C object CMakeFiles/ProcSI.dir/interface.c.o"
-	/usr/bin/gcc  $(C_DEFINES) $(C_FLAGS) -o CMakeFiles/ProcSI.dir/interface.c.o   -c /home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/interface.c
+	/usr/bin/gcc  $(C_DEFINES) $(C_FLAGS) -o CMakeFiles/ProcSI.dir/interface.c.o   -c /home/yoda/polytech/[C]/ProjetC2/procsi_emul/interface.c
 
 CMakeFiles/ProcSI.dir/interface.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/ProcSI.dir/interface.c.i"
@@ -155,6 +155,8 @@ ProcSI: CMakeFiles/ProcSI.dir/main.c.o
 ProcSI: CMakeFiles/ProcSI.dir/parser.c.o
 ProcSI: CMakeFiles/ProcSI.dir/function.c.o
 ProcSI: CMakeFiles/ProcSI.dir/interface.c.o
+ProcSI: /usr/lib/libcurses.so
+ProcSI: /usr/lib/libform.so
 ProcSI: CMakeFiles/ProcSI.dir/build.make
 ProcSI: CMakeFiles/ProcSI.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --red --bold "Linking C executable ProcSI"
@@ -175,6 +177,6 @@ CMakeFiles/ProcSI.dir/clean:
 .PHONY : CMakeFiles/ProcSI.dir/clean
 
 CMakeFiles/ProcSI.dir/depend:
-	cd /home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre /home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre /home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre /home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre /home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/CMakeFiles/ProcSI.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/yoda/polytech/[C]/ProjetC2/procsi_emul && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/yoda/polytech/[C]/ProjetC2/procsi_emul /home/yoda/polytech/[C]/ProjetC2/procsi_emul /home/yoda/polytech/[C]/ProjetC2/procsi_emul /home/yoda/polytech/[C]/ProjetC2/procsi_emul /home/yoda/polytech/[C]/ProjetC2/procsi_emul/CMakeFiles/ProcSI.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/ProcSI.dir/depend
 

@@ -39,10 +39,10 @@ RM = /usr/bin/cmake -E remove -f
 CMAKE_EDIT_COMMAND = /usr/bin/ccmake
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre
+CMAKE_SOURCE_DIR = /home/yoda/polytech/[C]/ProjetC2/procsi_emul
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre
+CMAKE_BINARY_DIR = /home/yoda/polytech/[C]/ProjetC2/procsi_emul
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -69,9 +69,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/CMakeFiles /home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yoda/polytech/[C]/ProjetC2/procsi_emul/CMakeFiles /home/yoda/polytech/[C]/ProjetC2/procsi_emul/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yoda/polytech/[C]/ProjetC2/procsi_emul/propre/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yoda/polytech/[C]/ProjetC2/procsi_emul/CMakeFiles 0
 .PHONY : all
 
 # The main clean target

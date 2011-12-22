@@ -304,10 +304,13 @@ void execute_file_menu(int choice,const char * choice_name, char * folder){
         }else{
             attroff(A_BOLD);
             attroff(COLOR_PAIR(1));
-            mvprintw(LINES-3, 0, "\n\nExecution ...\n");
+            PC = 0;
+            mvprintw(LINES-3, 0, "\n\nExecution (%i)... (Appuyez sur entrer pour passer à l'instruction suivante\n"), PC;
             refresh();
             
              //emulation du programme
+            
+            
              exec_instr();
             //display_execution(6, mem_prog, nb_instr, reg, taille_reg, 1, 2, 3);
         }

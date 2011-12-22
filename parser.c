@@ -370,7 +370,7 @@ void parse(char * file, int * nb_instruction){
                         } else if(regexec (&preg_dir, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
                             get_operandes(chaine, pmatch, source, dest);
                             
-                            tab_mot[*nb_instruction-1] = save_mot(POP, REGDIR, 0, 0) ; //-1 car un tableau commence a 0 et ici nous incrémentons avant cette operation
+                            tab_mot[*nb_instruction-1] = save_mot(POP, DIRREG, 0, 0) ; //-1 car un tableau commence a 0 et ici nous incrémentons avant cette operation
                             *nb_instruction += 1;
                             tab_mot[*nb_instruction-1] = save_brut(atoi(*dest));
 
@@ -379,7 +379,7 @@ void parse(char * file, int * nb_instruction){
                         } else if(regexec (&preg_ind, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
                              get_operandes(chaine, pmatch, source, dest);
                             
-                            tab_mot[*nb_instruction-1] = save_mot(POP, REGIND, atoi(*dest), 0) ;
+                            tab_mot[*nb_instruction-1] = save_mot(POP, INDREG, atoi(*dest), 0) ;
                             //printf (" IND %i", tab_mot[*nb_instruction-1].codage.source);
                         
                         } else{

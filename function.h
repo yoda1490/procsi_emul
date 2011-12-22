@@ -108,7 +108,7 @@ int PC, SP, SR;
  * \param source Opérande source.
  * \param dest Opérande destination.
  */
-void add(int* source, int* dest, int* SR);
+void add(short int* source, int* dest, int* SR);
 
 /**
  * \fn void sub(int* source, int* dest)
@@ -119,7 +119,7 @@ void add(int* source, int* dest, int* SR);
  * \param source Opérande source.
  * \param dest Opérande destination.
  */
-void sub(int* source, int* dest, int* SR);
+void sub(short int* source, int* dest, int* SR);
 
 /**
  * \fn char* toHexa(int n)

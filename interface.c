@@ -305,7 +305,11 @@ void execute_file_menu(int choice,const char * choice_name, char * folder){
             attroff(A_BOLD);
             attroff(COLOR_PAIR(1));
             mvprintw(LINES-3, 0, "\n\nExecution ...\n");
-            display_execution(6, mem_prog, nb_instr, reg, taille_reg, 1, 2, 3);
+            refresh();
+            
+             //emulation du programme
+             exec_instr();
+            //display_execution(6, mem_prog, nb_instr, reg, taille_reg, 1, 2, 3);
         }
         
         refresh();
@@ -452,9 +456,9 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
                 //mvprintw(i+2, 0, "%s", tab_instruction[i]);
                 register_items[i] = new_item(tab_register[i], ""); //ajoute les éléments dans mon tableau d'item
         }
-                sprintf(pc_string, "%d", PC);
-                sprintf(sp_string, "%d", SP);
-                sprintf(sr_string, "%d", SR);
+                sprintf(pc_string, "%i", PC);
+                sprintf(sp_string, "%i", SP);
+                sprintf(sr_string, "%i", SR);
                 register_items[nb_reg] = new_item("PC:", pc_string); //register_items[8]
                 register_items[nb_reg+1] = new_item("SP:", sp_string); //register_items[9]
                 register_items[nb_reg+2] = new_item("SR:", sr_string);  //register_items[10]
@@ -581,8 +585,9 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
                 case 10:
                         move(20, 0);
 			clrtoeol();
+                        return ;
                        
-			break;
+			//break;
                  
 
 		}

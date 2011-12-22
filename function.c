@@ -154,13 +154,13 @@ char* add0(char* bin, int size){
     return ch0;
 }
 
-void add(int* source, int* dest, int* SR){
+void add(short int* source, int* dest, int* SR){
     *dest = *dest + *source;
     // On retourne le résultat pour le stocker dans le registre SR
     *SR = *dest;
 }
 
-void sub(int* source, int* dest, int* SR){
+void sub(short int* source, int* dest, int* SR){
     *dest = *dest - *source;
     // On retourne le résultat pour le stocker dans le registre SR
     *SR = *dest;

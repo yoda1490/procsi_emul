@@ -76,6 +76,7 @@ mode;
  */
 typedef enum
 {
+   //BRUT,
    LOAD,    /*!< Instruction LOAD. */
    STORE,   /*!< Instruction STORE. */
    ADD,     /*!< Instruction ADD. */
@@ -87,9 +88,15 @@ typedef enum
    PUSH,    /*!< Instruction PUSH. */
    POP,     /*!< Instruction POP. */
    HALT,     /*!< Instruction HALT. */
-   UNKOWN   /*!< Instruction inconnue. */
 }
 mnemonique;
+
+typedef enum
+{
+   M_MENU,    /*!< Mode menu. */
+   M_EXEC,   /*!< Mode exécution d'un programme. */
+}
+mode_window;
 
 
 //mémoire du programme
@@ -97,14 +104,14 @@ mot mem_prog[TAILLE_MEM];
 // registres généraux
 int reg[8];
 // registres spécialisés
-int PC, SP, SR;
+int sp, PC, SR;
 
 /**
  * \fn void add(int* source, int* dest)
  * \brief Fonction ajoutant l'opérande source à l'opérande dest.
  * Résultat stocker dans l'opérande dest.
  * Modification du registre SR.
- *
+ *	
  * \param source Opérande source.
  * \param dest Opérande destination.
  */
@@ -155,15 +162,6 @@ char* add0(char* bin, int size);
  *
  */
 void stateRegister();
-
-/**
- * \fn void viewMemory(int adresse, int longueur)
- * \brief Fonction affichant l'état de la mémoire à partir d'une certaine adresse.
- *
- * \param adresse Adresse mémoire de début d'affichage.
- * \param longueur Nombre d'adresse mémoire à afficher.
- */
-void viewMemory(int adresse, int taille, mot* mem);
 
 
 #endif

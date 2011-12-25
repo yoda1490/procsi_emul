@@ -54,9 +54,13 @@ void clean_window(WINDOW *  my_menu_win);
 void clean_menu(MENU * my_menu);
 int exists(const char *fname);
 void execute_file_menu(int choice,const char * choice_name, char * folder);
-void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_instruction, int* registres,int nb_reg, int PC, int SP, int SR);
+void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_instruction, int* registres,int nb_reg);
 char * codeop_tostring(int codeop);
 char * mode_tostring(int a_mode);
-
+char * instr_toString(mot instr, int brut1, int brut2);
+void reset();
+char* mem_toString(int adresse, bool isBrut);
+void clean_all_menu();
+void init_mem();
 
 #endif

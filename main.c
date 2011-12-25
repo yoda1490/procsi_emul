@@ -21,15 +21,9 @@ int main(int argc, char* argv[]){
    
     /* Initialisation des registres */
     PC = 0;
-    SP = 0;
+    sp = ADR_PILE_MIN;
     SR = 0;
 
-    /* Allocation de la mémoire */
-    //mem = malloc(sizeof(mot)*TAILLE_MEM);
-
-    // Lancer l'interface
-    
+    // Lance l'interface
     init_gui();
-    int nb_instr;
-    //parse("example.asm", &nb_instr);
 }

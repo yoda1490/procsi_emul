@@ -21,6 +21,9 @@ MENU *instruction_menu;
 WINDOW *memory_win;
 MENU *memory_menu;
 int num_adr;
+ITEM * current_memory;
+int current_int_memory = 2000;
+int fin_prog = 0;
 
 char *choices[] = {
                         "Ouvrir un fichier Assembleur",
@@ -154,7 +157,6 @@ void draw_menu(char ** menu_liste, void (*ptrfonction)(int,const char *, char *)
                 case KEY_F(2):
                     //si on est déjà entrain d'ouvir un fichier on ne fait rien
                     if(folder == NULL){
-			mWindow = M_MENU;
                         if(menu_alrdy_dlt == 0){
                             menu_alrdy_dlt = 1;
                             clean_menu(my_menu);
@@ -268,6 +270,7 @@ void execute_main_menu(int choice,const char * choice_name, char * folder){
 void execute_file_menu(int choice,const char * choice_name, char * folder){
     char file[strlen(choice_name)];
     char folder_complet[strlen(folder)+strlen(file)+1];
+    
 
     // Remise à zéro des variables pour nettoyer avant exécution du programme
     reset();
@@ -291,6 +294,7 @@ void execute_file_menu(int choice,const char * choice_name, char * folder){
         attron(A_BOLD);
         attron(COLOR_PAIR(2));
         mvprintw(LINES-1, 0, "Compilation en cours ...");
+        
          
         
         
@@ -315,6 +319,8 @@ void execute_file_menu(int choice,const char * choice_name, char * folder){
              //Emulation de l'assembleur PROCSI
              exec_instr();
              mvprintw(LINES-1, 0, "Fin de l'éxecution                                                      ");
+             fin_prog = 1;
+             display_execution(PC, mem_prog, ADR_INSTR_MAX, reg, 8);
         }
         
         //on remet la couleur en noir
@@ -368,15 +374,11 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
         
         
         // for memory
-        char memory_temp[2000][50];
+        char memory_temp[TAILLE_MEM][50];
         ITEM ** memory_items;
-	memory_items = (ITEM **)calloc(2000, sizeof(ITEM *)); 
-        int menu_memory_alrdy_dlt = 0; //pour ne pas supprimer le menu 2 fois --> évite les erreur de segmentation lorsqu'on quitte
+	memory_items = (ITEM **)calloc(TAILLE_MEM, sizeof(ITEM *)); 
         
         
-        char dest_string[5];
-        char source_string[5];
-        char brut_string[10];
         char pc_string[6], sp_string[6], sr_string[6];
         
         int is_brut = 0; //si le mot précedent contient un mode direct, alors le mot suivant est un brut //si DIRIMM les 2 suivant sont des brut    
@@ -499,8 +501,32 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
             }
                 
                 memory_items[i] = new_item(memory_temp[i], "");
+                
+                 if(current_int_memory == i){
+                    current_memory = memory_items[i];
+                }
 
         }
+        
+        //pour le reste de la mémoire
+        for(i = 2000; i < 4000; ++i){
+                //contient le registre sous forme de string par exemple R1 ou PC
+                 //tab_memory[i] = malloc(8 * sizeof(char));
+                
+                
+                
+                snprintf(memory_temp[i], 12, "%i: %u", i, mem_prog[i].brut);
+                strncat(memory_temp[i], "\0", 1);
+                
+                memory_items[i] = new_item(memory_temp[i], "");
+                
+                if(current_int_memory == i){
+                    current_memory = memory_items[i];
+                }
+
+        }
+        
+        
         
         
 	instruction_menu = new_menu((ITEM **)instructions_items); //creer un menu contenant les instructions 
@@ -565,14 +591,18 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
         //on se place sur l'instruction en cour
         set_current_item (instruction_menu, item_en_cour);
         
+        //on se positionne sur la mémoire précédement regardé
+        set_current_item (memory_menu, current_memory);
+        
 	wrefresh(instructions_win);
         wrefresh(register_win);
         wrefresh(memory_win);
 
-	while((c = getch()) != KEY_F(9) && c != 32){
+	while((c = getch()) != KEY_F(9) ){
 
 		switch(c)
 		{	
+                    
 			case KEY_F(5):
 		        mvprintw(LINES-2, 0, "Exiting...");
 		        endwin();			/* End curses mode		  */
@@ -597,6 +627,8 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
 		                
 		        case KEY_DOWN:
 				menu_driver(memory_menu, REQ_DOWN_ITEM);
+                                current_int_memory = item_index(current_item(memory_menu));
+                                
 
 				wrefresh(instructions_win);
 		       		wrefresh(memory_win);
@@ -605,7 +637,8 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
 
 			case KEY_UP:
 				menu_driver(memory_menu, REQ_UP_ITEM);
-
+                                current_int_memory = item_index(current_item(memory_menu));
+                                
 				wrefresh(instructions_win);
 		      		wrefresh(memory_win);
 
@@ -613,7 +646,8 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
 
 		        case KEY_NPAGE:
 				menu_driver(memory_menu, REQ_SCR_DPAGE);
-
+                                current_int_memory = item_index(current_item(memory_menu));
+                                
 				wrefresh(instructions_win);
 		       		wrefresh(memory_win);
 
@@ -621,16 +655,16 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
 
 		        case KEY_PPAGE:
 				menu_driver(memory_menu, REQ_SCR_UPAGE);
-
+                                current_int_memory = item_index(current_item(memory_menu));
+                                
 				wrefresh(instructions_win);
 		       		wrefresh(memory_win);
 
 				break;
 		    
-		        case 10:
-		                //move(20, 0);
-				//clrtoeol();
-		                //return ;
+		        case 32:
+                            if(fin_prog == 0)
+                                return ;
 		               
 				break;
 		}
@@ -642,26 +676,13 @@ char ** list_file(char * folder, int* nb_result){
     
     struct dirent *lecture;
     DIR *rep;
-    char relativFolder[(strlen(folder)+2)];
+    char relativFolder[(strlen(folder)+5)];
     int nbFolder = 0;
     int cpt=0;
     char **listeRep=NULL;
     
-    //int err;
-    //regex_t preg;
-    //const char *str_regex = "[:alnum:]/[:alnum:]"; //savoir si c'est un sous dossier ou non
-    //int match;
-    
-    //err = regcomp (&preg, str_regex, REG_NOSUB | REG_EXTENDED);
-    
-    //match = regexec (&preg, folder, 0, NULL, 0);
-    //pour ne rajouter le ./ que la première fois
-    //if(match != 0){
-    //    mvprintw(LINES-3, 20, "oui");
-        strcpy(relativFolder, "./");
-    //}
+    strcpy(relativFolder, "./");
    
-    
     strcat(relativFolder,folder);
      //mvprintw(LINES-3, 40, "                                                         ");
      //mvprintw(LINES-3, 40, "%s  %i", relativFolder, strlen(folder));
@@ -682,11 +703,12 @@ char ** list_file(char * folder, int* nb_result){
             while ((lecture = readdir(rep))) {
                 listeRep[cpt] = malloc(strlen(lecture->d_name) * sizeof(char));
                 if(strcmp(lecture->d_name, rep_point) != 0){ 
-                        //on vire le fichier " . "
+                       //on vire le fichier " . " et le .. si on est à la racine du dossier
                         strcpy(listeRep[cpt], lecture->d_name);
                         cpt++;
                         //printf("%s\n", lecture->d_name);
                         //printf("%i %s\n",cpt,  listeRep[cpt]);
+                    
                 }
                 
             }

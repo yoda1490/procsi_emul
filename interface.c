@@ -377,6 +377,7 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
         char memory_temp[TAILLE_MEM][50];
         ITEM ** memory_items;
 	memory_items = (ITEM **)calloc(TAILLE_MEM, sizeof(ITEM *)); 
+        char brut_string[2000][10];
         
         
         char pc_string[6], sp_string[6], sr_string[6];
@@ -490,7 +491,8 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
 
             else{
 
-		snprintf(memory_temp[i], 25, "%i: %s", i, mem_toString(i,true));
+		snprintf(memory_temp[i], 25, "%i: %s ", i, mem_toString(i,true));
+                snprintf(brut_string[i], 6, "%u\0", tab_mot_instruction[i].brut);
                 strncat(memory_temp[i], "\0", 1);
         
                if(is_brut == 2){
@@ -500,7 +502,7 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
                }
             }
                 
-                memory_items[i] = new_item(memory_temp[i], "");
+                memory_items[i] = new_item(memory_temp[i], brut_string[i]);
                 
                  if(current_int_memory == i){
                     current_memory = memory_items[i];
@@ -533,15 +535,15 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
         register_menu = new_menu((ITEM **)register_items); //creer un menu contenant les registres
         memory_menu = new_menu((ITEM **)memory_items); //creer un menu contenant les cases mémoire
 	
-        instructions_win = newwin((LINES-4)/2, 40 , 3, (COLS/2)- (COLS-4)/4); //créer une nouvelle fenetre pour les instructions
+        instructions_win = newwin((LINES-4)/2, 45 , 3, (COLS/2)- (COLS-4)/4); //créer une nouvelle fenetre pour les instructions
         register_win = newwin(16, 20 , 3, (COLS/2) + 10); //créer une nouvelle fenetre pour les registres
-        memory_win = newwin((LINES-4)/2, 40 , 3+(LINES-4)/2, (COLS/2)- (COLS-4)/4); //créer une nouvelle fenetre pour la mémoire
+        memory_win = newwin((LINES-4)/2, 45 , 3+(LINES-4)/2, (COLS/2)- (COLS-4)/4); //créer une nouvelle fenetre pour la mémoire
         
         keypad(memory_win, TRUE); //active le clavier sur la mémoire
         
         /* Set main window and sub window */
         set_menu_win(instruction_menu, instructions_win); //set main menu
-        set_menu_sub(instruction_menu, derwin(instructions_win, ((LINES-4)/2)-4, 38, 3, 1)); // set sub window
+        set_menu_sub(instruction_menu, derwin(instructions_win, ((LINES-4)/2)-4, 43, 3, 1)); // set sub window
         set_menu_format(instruction_menu, ((LINES-4)/2)-4, 1);
         
         set_menu_win(register_menu, register_win); //set main menu
@@ -550,7 +552,7 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
         
         
         set_menu_win(memory_menu, memory_win); //set main menu
-        set_menu_sub(memory_menu, derwin(memory_win, ((LINES-4)/2)-4, 38, 3, 1)); // set sub window
+        set_menu_sub(memory_menu, derwin(memory_win, ((LINES-4)/2)-4, 43, 3, 1)); // set sub window
         set_menu_format(memory_menu, ((LINES-4)/2)-4, 1);
         
         
@@ -563,10 +565,10 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
         
         /* Print a border around the main window and print a title */
         box(instructions_win, 0, 0);
-        print_in_middle(instructions_win, 1, 0, 40, "Liste des instructions", COLOR_PAIR(1));
+        print_in_middle(instructions_win, 1, 0, 45, "Liste des instructions", COLOR_PAIR(1));
 	mvwaddch(instructions_win, 2, 0, ACS_LTEE);
 	mvwhline(instructions_win, 2, 1, ACS_HLINE, 43);
-	mvwaddch(instructions_win, 2, 39, ACS_RTEE);
+	mvwaddch(instructions_win, 2, 44, ACS_RTEE);
 	refresh();
         
         box(register_win, 0, 0);
@@ -577,10 +579,10 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
 	refresh();
         
         box(memory_win, 0, 0);
-        print_in_middle(memory_win, 1, 0, 40, "Mémoire", COLOR_PAIR(1));
+        print_in_middle(memory_win, 1, 0, 45, "Mémoire", COLOR_PAIR(1));
 	mvwaddch(memory_win, 2, 0, ACS_LTEE);
 	mvwhline(memory_win, 2, 1, ACS_HLINE, 43);
-	mvwaddch(memory_win, 2, 39, ACS_RTEE);
+	mvwaddch(memory_win, 2, 44, ACS_RTEE);
 	refresh();
         
 

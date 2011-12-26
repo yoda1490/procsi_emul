@@ -65,26 +65,9 @@ int init_gui()
 	attroff(COLOR_PAIR(1));
 	
 	
-        draw_menu(choices, execute_main_menu, "", 3);
+        draw_menu(choices, execute_main_menu, NULL, 3);
         
-	while((ch = getch()) != KEY_F(5))
-	{
-            switch(ch)
-	    {	case KEY_F(5):
-                        mvprintw(LINES-2, 0, "Exiting...");
-                        endwin();			/* End curses mode		  */
-                        exit(0);
-            
-                case KEY_F(2):
-
-			clean_all_menu();
-			
-			mWindow = M_MENU;
-                        files = list_file("", &i);
-                        draw_menu(files, execute_file_menu, "", i);
-            }
-            
-	}
+	
 	endwin();			/* End curses mode		  */
 	return 0;
 }
@@ -123,8 +106,9 @@ void draw_menu(char ** menu_liste, void (*ptrfonction)(int,const char *, char *)
 	int i;
 	ITEM *cur_item;
         my_items = (ITEM **)calloc(taille_menu + 1, sizeof(ITEM *));
-        int menu_alrdy_dlt = 0; //pour ne pas supprimer le menu 2 fois --> évite les erreur de segmentation lorsqu'on quitte
+        int menu_alrdy_dlt = 0; //pour ne pas supprimer le menu 2 fois -> évite les erreur de segmentation lorsqu'on quitte
         char ** files; //pour le cas ou on utilise F2 (ouvrir un fichier)
+        int nb_file = 0;
         
         int num_choix;
         char choix[FILE_MAX];
@@ -168,18 +152,19 @@ void draw_menu(char ** menu_liste, void (*ptrfonction)(int,const char *, char *)
                         exit(0);
             
                 case KEY_F(2):
-
-			clean_all_menu();
-                        
+                    //si on est déjà entrain d'ouvir un fichier on ne fait rien
+                    if(folder == NULL){
 			mWindow = M_MENU;
-                        files = list_file("", &i);
                         if(menu_alrdy_dlt == 0){
                             menu_alrdy_dlt = 1;
                             clean_menu(my_menu);
                             clean_window(my_menu_win);
                         }
-                        draw_menu(files, execute_file_menu, "", i);
+                        files = list_file("", &nb_file);
+                        draw_menu(files, execute_file_menu, "", nb_file);
                         return;
+                    }
+                        break;
             case KEY_F(3):
                         mvprintw((3) ,(COLS-30)/2, "                              ");
                         clean_menu(my_menu);
@@ -305,10 +290,9 @@ void execute_file_menu(int choice,const char * choice_name, char * folder){
          
         attron(A_BOLD);
         attron(COLOR_PAIR(2));
-        
-         mvprintw(LINES-3, 0, "Compilation en cours ...");
+        mvprintw(LINES-1, 0, "Compilation en cours ...");
          
-         attron(COLOR_PAIR(3));
+        
         
          if(nb_instr == -1){
             mvprintw(LINES-3, 0, "Erreur lors de l'ouverture du fichier");
@@ -321,13 +305,20 @@ void execute_file_menu(int choice,const char * choice_name, char * folder){
         }else{
             attroff(A_BOLD);
             attroff(COLOR_PAIR(1));
-
-            mvprintw(LINES-3, 0, "\n\nExecution (%i)... (Appuyez sur entrer pour passer à l'instruction suivante\n");
+            
+            
+            mvprintw(LINES-1, 0, "Execution ... (Appuyez sur espace pour passer à l'instruction suivante)");
             refresh();
+            
+             attron(COLOR_PAIR(3));
             
              //Emulation de l'assembleur PROCSI
              exec_instr();
+             mvprintw(LINES-1, 0, "Fin de l'éxecution                                                      ");
         }
+        
+        //on remet la couleur en noir
+        attroff(COLOR_PAIR(1));
         
         /* refresh();
         attroff(A_BOLD);
@@ -515,8 +506,7 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
 	instruction_menu = new_menu((ITEM **)instructions_items); //creer un menu contenant les instructions 
         register_menu = new_menu((ITEM **)register_items); //creer un menu contenant les registres
         memory_menu = new_menu((ITEM **)memory_items); //creer un menu contenant les cases mémoire
-	mvprintw(LINES - 2, 0, "F9 to close the menu"); 
-        
+	
         instructions_win = newwin((LINES-4)/2, 40 , 3, (COLS/2)- (COLS-4)/4); //créer une nouvelle fenetre pour les instructions
         register_win = newwin(16, 20 , 3, (COLS/2) + 10); //créer une nouvelle fenetre pour les registres
         memory_win = newwin((LINES-4)/2, 40 , 3+(LINES-4)/2, (COLS/2)- (COLS-4)/4); //créer une nouvelle fenetre pour la mémoire

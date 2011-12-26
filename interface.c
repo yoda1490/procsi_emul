@@ -475,7 +475,7 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
 
 		if(is_brut == 0){
                
-			snprintf(memory_temp[i], 25, "%i: %s", i, mem_toString(i,false));
+			snprintf(memory_temp[i], 26, "%i: %s", i, mem_toString(i,false));
 		        strncat(memory_temp[i], "\0", 1);
 		        
 		        //si l'instruction contient une source ou destination en mode immediat ou direct, la prochaine instruction sera un brut

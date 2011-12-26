@@ -317,6 +317,7 @@ void execute_file_menu(int choice,const char * choice_name, char * folder){
              attron(COLOR_PAIR(3));
             
              //Emulation de l'assembleur PROCSI
+             fin_prog =0;
              exec_instr();
              mvprintw(LINES-1, 0, "Fin de l'éxecution                                                      ");
              fin_prog = 1;

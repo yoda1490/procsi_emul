@@ -13,6 +13,7 @@
 
 
 void parse(char * file, int * nb_instruction){
+    
     FILE* fichier = NULL;
     int caractereActuel = 0;
     char chaine[TAILLE_MAX] = "";
@@ -96,6 +97,7 @@ void parse(char * file, int * nb_instruction){
     
     //opérande unique pour JMP JEQ CALL PUSH POP
     //certaines parenthèses son "en trop" cela permet d'utiliser les mêmes fonctions de récupération d'opérande d'au dessus
+    
     regex_t preg_reg;
     const char *operateur_reg_regex = "^[ \t]*([A-Z]{3,5})[ \t]+R([0-7])([ \t])*\n$";
     err = regcomp (&preg_reg, operateur_reg_regex,  REG_EXTENDED);
@@ -109,8 +111,9 @@ void parse(char * file, int * nb_instruction){
     const char *operateur_imm_regex = "^[ \t]*([A-Z]{3,5})[ \t]+#([1-9][0-9]{0,5})([ \t])*\n$";
     err = regcomp (&preg_imm, operateur_imm_regex,  REG_EXTENDED);
     
-    //pour RET et HALT qui n'ont aucune opérande, la regex total est faite dans la première partie (dans la regex pour RET et HALP
     
+    //pour RET et HALT qui n'ont aucune opérande, la regex total est faite dans la première partie (dans la regex pour RET et HALP
+   
    //suite pour récupérer les opérandes
 
     //pour récupéré source et dest
@@ -118,6 +121,7 @@ void parse(char * file, int * nb_instruction){
     nmatch = preg_regreg.re_nsub;
     regmatch_t pmatch[nmatch];
 
+    
     
     *nb_instruction = 0;
    if (fichier != NULL)
@@ -290,21 +294,21 @@ void parse(char * file, int * nb_instruction){
                         } else if(regexec (&preg_imm, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
                             get_operandes(chaine, pmatch, source, dest);
                             //INDIMM car le IMM n'existe pas ni le IMMIMM
-                            tab_mot[*nb_instruction-1] = save_mot(PUSH, INDIMM, 0, 0) ; //-1 car un tableau commence a 0 et ici nous incrémentons avant cette operation
+                            tab_mot[*nb_instruction-1] = save_mot(PUSH, REGIMM, 0, 0) ; //-1 car un tableau commence a 0 et ici nous incrémentons avant cette operation
                             *nb_instruction += 1;
                             tab_mot[*nb_instruction-1] = save_brut(atoi(*dest));
                         
                         } else if(regexec (&preg_dir, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
                             get_operandes(chaine, pmatch, source, dest);
                             //REGDIR car le DIR n'existe pas ni le DIRDIR
-                            tab_mot[*nb_instruction-1] = save_mot(PUSH, REGDIR, 0, 0) ; //-1 car un tableau commence a 0 et ici nous incrémentons avant cette operation
+                            tab_mot[*nb_instruction-1] = save_mot(PUSH, DIRREG, 0, 0) ; //-1 car un tableau commence a 0 et ici nous incrémentons avant cette operation
                             *nb_instruction += 1;
                             tab_mot[*nb_instruction-1] = save_brut(atoi(*dest));
                                                     
                         } else if(regexec (&preg_ind, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
                             get_operandes(chaine, pmatch, source, dest);
                             //REGIND seul mode dispo pour indiqué que c'est IND
-                            tab_mot[*nb_instruction-1] = save_mot(PUSH, REGIND, atoi(*dest), 0) ;
+                            tab_mot[*nb_instruction-1] = save_mot(PUSH, INDREG, atoi(*dest), 0) ;
                         } else{
                             *nb_instruction += 2000 + inutil;
                         }
@@ -321,14 +325,14 @@ void parse(char * file, int * nb_instruction){
                         } else if(regexec (&preg_dir, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
                             get_operandes(chaine, pmatch, source, dest);
                             
-                            tab_mot[*nb_instruction-1] = save_mot(POP, DIRREG, 0, 0) ; //-1 car un tableau commence a 0 et ici nous incrémentons avant cette operation
+                            tab_mot[*nb_instruction-1] = save_mot(POP, REGDIR, 0, 0) ; //-1 car un tableau commence a 0 et ici nous incrémentons avant cette operation
                             *nb_instruction += 1;
                             tab_mot[*nb_instruction-1] = save_brut(atoi(*dest));
                         
                         } else if(regexec (&preg_ind, chaine, nmatch, pmatch, 0) != REG_NOMATCH){
                              get_operandes(chaine, pmatch, source, dest);
                             
-                            tab_mot[*nb_instruction-1] = save_mot(POP, INDREG, atoi(*dest), 0) ;
+                            tab_mot[*nb_instruction-1] = save_mot(POP, REGIND, atoi(*dest), 0) ;
                         
                         } else{
                             *nb_instruction += 2000 + inutil;

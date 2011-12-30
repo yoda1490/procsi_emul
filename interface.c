@@ -20,6 +20,8 @@ WINDOW *instructions_win;
 MENU *instruction_menu;
 WINDOW *memory_win;
 MENU *memory_menu;
+WINDOW *stack_win;
+MENU *stack_menu;
 int num_adr;
 ITEM * current_memory;
 int current_int_memory = 2000;
@@ -253,6 +255,7 @@ void execute_main_menu(int choice,const char * choice_name, char * folder){
         int i;
         char ** files = list_file("", &i);
         draw_menu(files, execute_file_menu, "", i);
+        
     }
     
     else if(choice == 1){
@@ -268,6 +271,8 @@ void execute_main_menu(int choice,const char * choice_name, char * folder){
 }
 
 void execute_file_menu(int choice,const char * choice_name, char * folder){
+    
+    
     char file[strlen(choice_name)];
     char folder_complet[strlen(folder)+strlen(file)+1];
     
@@ -275,6 +280,8 @@ void execute_file_menu(int choice,const char * choice_name, char * folder){
     // Remise à zéro des variables pour nettoyer avant exécution du programme
     reset();
 
+    
+    
     strcpy(file, choice_name);
     
     strcpy(folder_complet, folder);
@@ -282,14 +289,16 @@ void execute_file_menu(int choice,const char * choice_name, char * folder){
     
     
     if(exists(folder_complet) == 1){
-         
          mvprintw(LINES-2, 0, "                                                        ");
          mvprintw(LINES-1, 0, "%s                                                                ", folder_complet);
+         
          int nb_instr;
+         
+         
          parse(folder_complet, &nb_instr);
+        
 
-         /* int reg[8] = {0,0,0,0, 0,0,0,0};*/
-         int taille_reg = 8;
+        int taille_reg = 8;
          
         attron(A_BOLD);
         attron(COLOR_PAIR(2));
@@ -352,9 +361,8 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
 	// Mode Exécution d'un programme en cours => permet de désactiver la touche entrée (sinon erreur de segmentation)
 	mWindow = M_EXEC;
 
-        wrefresh(memory_win);
-
         ITEM *item_en_cour = NULL;
+	ITEM *item_stack_en_cour = NULL;
 
         // for instructions
         char ** tab_instruction;
@@ -363,22 +371,24 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
 	int i;
 	instructions_items = (ITEM **)calloc(nb_instruction + 1, sizeof(ITEM *));
         int menu_instruction_alrdy_dlt = 0; //pour ne pas supprimer le menu 2 fois --> évite les erreur de segmentation lorsqu'on quitte
-        
-        
+                
         // for register
         char ** files;
         char  ** tab_register;
         ITEM **register_items;
-	
 	register_items = (ITEM **)calloc(nb_reg + 1 +3, sizeof(ITEM *)); //+3 pour PC sp et SR
-        int menu_register_alrdy_dlt = 0; //pour ne pas supprimer le menu 2 fois --> évite les erreur de segmentation lorsqu'on quitte
-        
+        int menu_register_alrdy_dlt = 0; //pour ne pas supprimer le menu 2 fois --> évite les erreur de segmentation lorsqu'on quitte   
         
         // for memory
         char memory_temp[TAILLE_MEM][50];
         ITEM ** memory_items;
 	memory_items = (ITEM **)calloc(TAILLE_MEM, sizeof(ITEM *)); 
         char brut_string[2000][10];
+
+	// for stack
+        char stack_temp[501][50];
+        ITEM ** stack_items;
+	stack_items = (ITEM **)calloc(501, sizeof(ITEM *));
         
         
         char pc_string[6], sp_string[6], sr_string[6];
@@ -397,9 +407,10 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
 	i = 0;
         char * choix = NULL;
 
+
 	/* AFFICHAGE INSTRUCTIONS */
          
-	for(i=0; i < ADR_INSTR_MAX; i++){
+	for(i = 0; i < ADR_INSTR_MAX; i++){
             
             tab_instruction[i] = malloc(50 * sizeof(char)); //plus simple pour le moment, une instruction ne peut dépasser 50caractères ... a améliorer si assez de temps
 
@@ -426,6 +437,10 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
                    //n le desactive, cela permet de lui doonner une autre apparence pur le repérer
                    item_opts_off(instructions_items[j], O_SELECTABLE);
             	}
+
+		if (tab_mot_instruction[i].codage.codeop == RET){
+			is_brut = 0;
+		}
 
 		// On arrête l'affichage après le halt
 		if (tab_mot_instruction[i].codage.codeop == HALT){
@@ -469,7 +484,7 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
         item_opts_off(register_items[0], O_SELECTABLE);
                 
 
-	/* AFFICHAGE MEMOIRE */
+	/* AFFICHAGE MEMOIRE : INSTRUCTIONS */
 
 	for(i = 0; i < 2000; i++){
 
@@ -508,15 +523,12 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
                  if(current_int_memory == i){
                     current_memory = memory_items[i];
                 }
-
         }
+
         
-        //pour le reste de la mémoire
+        /* AFFICHAGE MEMOIRE : DONNEES DE LA MEMOIRE */ 
+
         for(i = 2000; i < 4000; ++i){
-                //contient le registre sous forme de string par exemple R1 ou PC
-                 //tab_memory[i] = malloc(8 * sizeof(char));
-                
-                
                 
                 snprintf(memory_temp[i], 12, "%i: %u", i, mem_prog[i].brut);
                 strncat(memory_temp[i], "\0", 1);
@@ -526,19 +538,36 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
                 if(current_int_memory == i){
                     current_memory = memory_items[i];
                 }
-
         }
         
-        
-        
+	
+	/* AFFICHAGE PILE */
+
+	int k=0;
+	for(i = 4001; i <= 4500; i++){
+
+		snprintf(stack_temp[k], 20, "%i: %d ", i, mem_prog[i].brut);
+                strncat(stack_temp[k], "\0", 1);
+                
+                stack_items[k] = new_item(stack_temp[k], "");
+
+		// On récupère l'adresse de SP
+		if (i == sp){
+		     item_stack_en_cour = stack_items[k];
+		}
+
+		k++;
+        }
         
 	instruction_menu = new_menu((ITEM **)instructions_items); //creer un menu contenant les instructions 
         register_menu = new_menu((ITEM **)register_items); //creer un menu contenant les registres
         memory_menu = new_menu((ITEM **)memory_items); //creer un menu contenant les cases mémoire
+	stack_menu = new_menu((ITEM **)stack_items); //creer un menu contenant les valeurs de la pile
 	
         instructions_win = newwin((LINES-4)/2, 45 , 3, (COLS/2)- (COLS-4)/4); //créer une nouvelle fenetre pour les instructions
-        register_win = newwin(16, 20 , 3, (COLS/2) + 10); //créer une nouvelle fenetre pour les registres
+        register_win = newwin((LINES-4)/2, 25 , 3, (COLS/2) + 10); //créer une nouvelle fenetre pour les registres
         memory_win = newwin((LINES-4)/2, 45 , 3+(LINES-4)/2, (COLS/2)- (COLS-4)/4); //créer une nouvelle fenetre pour la mémoire
+	stack_win = newwin((LINES-4)/2, 25 , 3+(LINES-4)/2,(COLS/2) + 10); //créer une nouvelle fenetre pour la pile
         
         keypad(memory_win, TRUE); //active le clavier sur la mémoire
         
@@ -546,6 +575,7 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
         set_menu_win(instruction_menu, instructions_win); //set main menu
         set_menu_sub(instruction_menu, derwin(instructions_win, ((LINES-4)/2)-4, 43, 3, 1)); // set sub window
         set_menu_format(instruction_menu, ((LINES-4)/2)-4, 1);
+
         
         set_menu_win(register_menu, register_win); //set main menu
         set_menu_sub(register_menu, derwin(register_win, 13, 18, 3, 1)); // set sub window
@@ -555,6 +585,11 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
         set_menu_win(memory_menu, memory_win); //set main menu
         set_menu_sub(memory_menu, derwin(memory_win, ((LINES-4)/2)-4, 43, 3, 1)); // set sub window
         set_menu_format(memory_menu, ((LINES-4)/2)-4, 1);
+
+	
+	set_menu_win(stack_menu, stack_win); //set main menu
+        set_menu_sub(stack_menu, derwin(stack_win, 13, 18, 3, 1)); // set sub window
+        set_menu_format(stack_menu, 25, 1);
         
         
         
@@ -562,6 +597,7 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
         set_menu_mark(instruction_menu, " * ");
         set_menu_mark(register_menu, "");
         set_menu_mark(memory_menu, " --> ");
+	set_menu_mark(stack_menu, " SP ");
         
         
         /* Print a border around the main window and print a title */
@@ -573,10 +609,10 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
 	refresh();
         
         box(register_win, 0, 0);
-        print_in_middle(register_win, 1, 0, 20, "Registres", COLOR_PAIR(1));
+        print_in_middle(register_win, 1, 0, 25, "Registres", COLOR_PAIR(1));
 	mvwaddch(register_win, 2, 0, ACS_LTEE);
-	mvwhline(register_win, 2, 1, ACS_HLINE, 22);
-	mvwaddch(register_win, 2, 19, ACS_RTEE);
+	mvwhline(register_win, 2, 1, ACS_HLINE, 23);
+	mvwaddch(register_win, 2, 24, ACS_RTEE);
 	refresh();
         
         box(memory_win, 0, 0);
@@ -585,27 +621,37 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
 	mvwhline(memory_win, 2, 1, ACS_HLINE, 43);
 	mvwaddch(memory_win, 2, 44, ACS_RTEE);
 	refresh();
-        
 
+	box(stack_win, 0, 0);
+        print_in_middle(stack_win, 1, 0, 25, "Pile", COLOR_PAIR(1));
+	mvwaddch(stack_win, 2, 0, ACS_LTEE);
+	mvwhline(stack_win, 2, 1, ACS_HLINE, 23);
+	mvwaddch(stack_win, 2, 24, ACS_RTEE);
+	refresh();
+        
 	post_menu(instruction_menu);
         post_menu(register_menu);
         post_menu(memory_menu);
+	post_menu(stack_menu);
         
         //on se place sur l'instruction en cour
         set_current_item (instruction_menu, item_en_cour);
         
         //on se positionne sur la mémoire précédement regardé
         set_current_item (memory_menu, current_memory);
+
+	//on se positionne sur le sommet de la pile
+        set_current_item (stack_menu, item_stack_en_cour);
         
 	wrefresh(instructions_win);
         wrefresh(register_win);
         wrefresh(memory_win);
+        wrefresh(stack_win);
 
 	while((c = getch()) != KEY_F(9) ){
 
 		switch(c)
 		{	
-                    
 			case KEY_F(5):
 		        mvprintw(LINES-2, 0, "Exiting...");
 		        endwin();			/* End curses mode		  */
@@ -616,6 +662,7 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
 				/* On efface les fenêtres */
 				clean_all_menu();
 
+				free(stack_items);
 				free(memory_items);
 				free(register_items);
 				free(instructions_items);
@@ -676,7 +723,7 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
 
 
 char ** list_file(char * folder, int* nb_result){
-    
+
     struct dirent *lecture;
     DIR *rep;
     char relativFolder[(strlen(folder)+5)];
@@ -696,7 +743,7 @@ char ** list_file(char * folder, int* nb_result){
         }
     }
     
-   listeRep = (char**) malloc (nbFolder* sizeof(char*));
+   listeRep = malloc (nbFolder* sizeof(char*));
    closedir(rep);
     
     rep = opendir(relativFolder);
@@ -704,7 +751,7 @@ char ** list_file(char * folder, int* nb_result){
     char rep_point[]= ".";
         if(rep != 0){
             while ((lecture = readdir(rep))) {
-                listeRep[cpt] = malloc(strlen(lecture->d_name) * sizeof(char));
+                listeRep[cpt] = malloc(strlen(lecture->d_name) * sizeof(char)+1);
                 if(strcmp(lecture->d_name, rep_point) != 0){ 
                        //on vire le fichier " . " et le .. si on est à la racine du dossier
                         strcpy(listeRep[cpt], lecture->d_name);
@@ -758,6 +805,8 @@ void clean_all_menu(){
         clean_window(register_win);
 	clean_menu(memory_menu);
    	clean_window(memory_win);
+	clean_menu(stack_menu);
+   	clean_window(stack_win);
 }
 
 void clean_window(WINDOW *  my_menu_win){
@@ -964,34 +1013,101 @@ char * instr_toString(mot instr, int brut1, int brut2){
 			}
 		}
 
-		else if (instr.codage.codeop == PUSH || instr.codage.codeop == POP || instr.codage.codeop == CALL || instr.codage.codeop == JMP || instr.codage.codeop == JEQ){
+		else if (instr.codage.codeop == CALL || instr.codage.codeop == JMP || instr.codage.codeop == JEQ){
 		// Instruction à une opérande
 
 		strcpy(instrToS,codeop_tostring(instr.codage.codeop));
 		strcat(instrToS, "  ");
 
-			if (instr.codage.mode == REGREG || instr.codage.mode == REGDIR || instr.codage.mode == REGIND || instr.codage.mode == REGIMM){
+			if (instr.codage.mode == REGREG || instr.codage.mode == DIRREG || instr.codage.mode == INDREG){
 				strcat(instrToS, "R");
 				sprintf(dest_string,"%d",instr.codage.dest);
 				strcat(instrToS,dest_string);
 			}
 
-			else if (instr.codage.mode == DIRREG || instr.codage.mode == DIRIMM){
-				strcat(instrToS, ", [");
+			else if (instr.codage.mode == REGIMM || instr.codage.mode == DIRIMM || instr.codage.mode == INDIMM){
+				strcat(instrToS, "#");
 				sprintf(brut_string,"%d",brut1);
 				strcat(instrToS,brut_string);
+			}
+
+			else if (instr.codage.mode == REGIND){
+				strcat(instrToS, "[R");
+				sprintf(dest_string,"%d",instr.codage.dest);
+				strcat(instrToS,dest_string);
 				strcat(instrToS, "]");
 			}
 
-			else if (instr.codage.mode == INDREG || instr.codage.mode == INDIMM){
-				strcat(instrToS, "[R");
+			else if (instr.codage.mode == REGDIR){
+				strcat(instrToS, "[");
 				sprintf(dest_string,"%d",instr.codage.dest);
 				strcat(instrToS,dest_string);
 				strcat(instrToS, "]");
 			}
 		}
 
-		else if (instr.codage.codeop == HALT){
+		else if (instr.codage.codeop == PUSH){
+		// Instruction à une opérande
+
+		strcpy(instrToS,codeop_tostring(instr.codage.codeop));
+		strcat(instrToS, "  ");
+
+			if (instr.codage.mode == REGREG || instr.codage.mode == REGIND || instr.codage.mode == REGDIR){
+				strcat(instrToS, "R");
+				sprintf(dest_string,"%d",instr.codage.source);
+				strcat(instrToS,dest_string);
+			}
+
+			else if (instr.codage.mode == DIRREG || instr.codage.mode == DIRIMM){
+				strcat(instrToS, "[");
+				sprintf(brut_string,"%d",brut1);
+				strcat(instrToS,brut_string);
+				strcat(instrToS, "]");
+			}
+
+			else if (instr.codage.mode == INDIMM || instr.codage.mode == INDREG){
+				strcat(instrToS, "[R");
+				sprintf(dest_string,"%d",instr.codage.source);
+				strcat(instrToS,dest_string);
+				strcat(instrToS, "]");
+			}
+
+			/* On utilise ce mode pour déterminer l'immédiat */
+			else if (instr.codage.mode == REGIMM){
+				strcat(instrToS, "#");
+				sprintf(dest_string,"%d",brut1);
+				strcat(instrToS,dest_string);
+			}
+		}
+
+		else if (instr.codage.codeop == POP){
+		// Instruction à une opérande
+
+		strcpy(instrToS,codeop_tostring(instr.codage.codeop));
+		strcat(instrToS, "  ");
+
+			if (instr.codage.mode == REGREG || instr.codage.mode == DIRREG || instr.codage.mode == INDREG){
+				strcat(instrToS, "R");
+				sprintf(dest_string,"%d",instr.codage.source);
+				strcat(instrToS,dest_string);
+			}
+
+			else if (instr.codage.mode == REGIND){
+				strcat(instrToS, "[R");
+				sprintf(dest_string,"%d",instr.codage.source);
+				strcat(instrToS,dest_string);
+				strcat(instrToS, "]");
+			}
+
+			else if (instr.codage.mode == REGDIR){
+				strcat(instrToS, "[");
+				sprintf(dest_string,"%d",brut1);
+				strcat(instrToS,dest_string);
+				strcat(instrToS, "]");
+			}
+		}
+
+		else if (instr.codage.codeop == HALT || instr.codage.codeop == RET){
 			strcpy(instrToS,codeop_tostring(instr.codage.codeop));
 		}
 
@@ -1041,7 +1157,7 @@ void reset(){
 void init_mem(){
 
      int i;
-     for (i=0; i < TAILLE_MEM; i++){
+     for (i=0; i <= TAILLE_MEM; i++){
 
 	mem_prog[i].codage.codeop = 0;
 	mem_prog[i].codage.mode = 0;

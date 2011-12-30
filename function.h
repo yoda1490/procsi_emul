@@ -12,7 +12,7 @@
 #ifndef FUNCTION_H
 #define FUNCTION_H
 
-#define TAILLE_MEM 4500
+#define TAILLE_MEM 4501
 
 #define ADR_INSTR_MIN 0
 #define ADR_INSTR_MAX 1999

@@ -55,7 +55,7 @@ void exec_instr()
                     case REGIND :
                       
                         add(&mem_prog[reg[mem_prog[PC].codage.source]].brut,&reg[mem_prog[PC].codage.dest],&SR);
-                        PC += 2;
+                        PC += 1;
 
                         break;
                 }
@@ -91,7 +91,7 @@ void exec_instr()
                     case REGIND :
                       
                         sub(&mem_prog[reg[mem_prog[PC].codage.source]].brut,&reg[mem_prog[PC].codage.dest],&SR);
-                        PC += 2;
+                        PC += 1;
 
                         break;
                 }
@@ -191,7 +191,11 @@ void exec_instr()
                             PC = mem_prog[PC+1].brut;
                             // On enléve 1 au PC par anticipation du +1 de la boucle for
                             //PC--; //maintenan on incrémente dans chaque mode
+			    PC += 1;
                         }
+			else {
+			    PC += 2;
+			}
 
                         break;
                 }
@@ -224,7 +228,7 @@ void exec_instr()
 
                 sp = sp + 1;
                 PC = mem_prog[sp].brut;
-                PC += 1;
+                PC += 2;
 
                 break;
 
@@ -235,8 +239,8 @@ void exec_instr()
                 // On distingue les modes d'adressage pour savoir si la source se trouve dans un second mot ou non
                 switch (mem_prog[PC].codage.mode){
                     case REGREG :
-                    case DIRREG :
-                    case INDREG :
+                    case REGIND :
+                    case REGDIR :
 
                         // On empile directement la valeur du registre source
                         mem_prog[sp].brut = reg[mem_prog[PC].codage.source];
@@ -245,7 +249,8 @@ void exec_instr()
 
                         break;
 
-                    case REGIND :
+                    case INDREG :
+		    case INDIMM :
 
                         // On empile la valeur se trouvant é l'adresse contenue dans le registre source
                         mem_prog[sp].brut = mem_prog[reg[mem_prog[PC].codage.source]].brut;
@@ -254,18 +259,8 @@ void exec_instr()
 
                         break;
 
-                    case REGIMM :
-                    case INDIMM :
+                    case DIRREG :
                     case DIRIMM :
-
-                        // On empile une valeur immdédiate
-                        mem_prog[sp].brut = mem_prog[PC+1].brut;
-                        sp = sp - 1;
-                        PC += 2;
-
-                        break;
-
-                    case REGDIR :
 
                         // On empile la valeur se trouvant à l'adresse spécifiée
                         mem_prog[sp].brut = mem_prog[mem_prog[PC+1].brut].brut;
@@ -273,6 +268,13 @@ void exec_instr()
                         PC += 2;
 
                         break;
+
+		    case REGIMM :
+
+			// On empile une valeur immdédiate
+                        mem_prog[sp].brut = mem_prog[PC+1].brut;
+                        sp = sp - 1;
+                        PC += 2;
                 }
 
                 break;
@@ -284,9 +286,8 @@ void exec_instr()
                 // On distingue les modes d'adressage pour savoir si la source se trouve dans un second mot ou non
                 switch (mem_prog[PC].codage.mode){
                     case REGREG :
-                    case REGDIR :
-                    case REGIMM :
-                    case REGIND :
+                    case DIRREG :
+                    case INDREG :
 
                         // On empile directement la valeur du registre source
                         sp = sp + 1;
@@ -295,8 +296,7 @@ void exec_instr()
 
                         break;
 
-                    case DIRIMM :
-                    case DIRREG :
+                    case REGDIR :
 
                         // On empile directement la valeur du registre source
                         sp = sp + 1;
@@ -305,8 +305,7 @@ void exec_instr()
 
                         break;
 
-                    case INDIMM :
-                    case INDREG :
+                    case REGIND :
 
                         // On empile directement la valeur du registre source
                         sp = sp + 1;

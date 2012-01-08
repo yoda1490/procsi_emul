@@ -1,6 +1,6 @@
 /**
  * \file main.c
- * \brief Programme de tests.
+ * \brief Coeur de l'émulateur.
  * \author Lucas.C
  * \version 1.0
  * \date 18 décembre 2011
@@ -15,7 +15,11 @@
 #include "function.h"
 #include "interface.h"
 #include "parser.h"
-
+/**
+ * \fn int main (int argc, char* argv[])
+ * \brief Execute toutes les instruction du programme chargé dans la mémoire, et appel l'affichage (étape bloquante) à chaque nouvelle instruction.
+ *
+  */
 void exec_instr()
 {
 

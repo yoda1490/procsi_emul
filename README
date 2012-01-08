@@ -1,8 +1,12 @@
-to compile and link just do
+REQUIREMENT
+	gcc, make, cmake, ncurses
 
-cmake . && make
+COMPILATION
+	to compile and link just do:
 
+		cmake . && make
 
-to run do
+EXECUTION
+	to run do:
 
-./ProcSI
+		./ProcSI

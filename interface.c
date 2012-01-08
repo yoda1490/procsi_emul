@@ -1,3 +1,14 @@
+/**
+ * \file interface.c
+ * \brief Interface en nCurses pour l'émulateur.
+ * \author Amaury.B
+ * \version 3.0
+ * \date 20 décembre 2011
+ *
+ * Emulateur PROCSI
+ *
+ */
+
 #include <ncurses.h>
 #include <stdio.h>
 #include <string.h>
@@ -33,6 +44,13 @@ char *choices[] = {
     "Exit",
 };
 
+/**
+ * \fn int init_gui()
+ * \brief Fonction d'initialisation de l'interface NCurses.
+ *
+ * 
+ * \return 0 - Fin normal de la fonction.
+ */
 int init_gui() {
     mWindow = M_MENU;
     WIN win;
@@ -76,6 +94,12 @@ int init_gui() {
     return 0;
 }
 
+/**
+ * \fn void init_win_params(WIN *p_win)
+ * \brief Initialise les paramètres de la fenêtre spécifiée (cadres).
+ *
+ * \param p_win Fenetre dans laquel on met le cadre.
+ */
 void init_win_params(WIN *p_win) {
     p_win->height = 3;
     p_win->width = 10;
@@ -93,6 +117,12 @@ void init_win_params(WIN *p_win) {
 
 }
 
+/**
+ * \fn void init_win_params(WIN *p_win)
+ * \brief Initialise les paramètres de la fenêtre spécifiée (debug).
+ *
+ * \param p_win Fenetre dont on veut savoir les infos.
+ */
 void print_win_params(WIN *p_win) {
 #ifdef _DEBUG
     mvprintw(25, 0, "%d %d %d %d", p_win->startx, p_win->starty,
@@ -101,13 +131,24 @@ void print_win_params(WIN *p_win) {
 #endif
 }
 
+
+
+/**
+ * \fn void draw_menu(char ** menu_liste, void (*ptrfonction)(int, const char *, char *), char * folder, int taille_menu)
+ * \brief Dessine le menu principale ainsi que le menu de selection du fichier ASM.
+ *
+ * \param menu_liste Tableau de chaines de caractères contenant les éméments du menu
+ * \param *ptrfonction Fonction qui va traiter les actions à effectuer suivant le choix du menu
+ * \param folder Dossier à explorer (uniquement lors de l'affichage du menu de selection de fichier, NULL sinon
+ * \param taille_menu Nombre d'éléments du menu
+ * 
+ */
 void draw_menu(char ** menu_liste, void (*ptrfonction)(int, const char *, char *), char * folder, int taille_menu) {
     ITEM **my_items;
     int c;
     WINDOW *my_menu_win;
     MENU *my_menu;
     int i;
-    ITEM *cur_item;
     my_items = (ITEM **) calloc(taille_menu + 1, sizeof (ITEM *));
     int menu_alrdy_dlt = 0; //pour ne pas supprimer le menu 2 fois -> évite les erreur de segmentation lorsqu'on quitte
     char ** files; //pour le cas ou on utilise F2 (ouvrir un fichier)
@@ -221,6 +262,18 @@ void draw_menu(char ** menu_liste, void (*ptrfonction)(int, const char *, char *
 
 }
 
+/**
+ * \fn void print_in_middle(WINDOW *win, int starty, int startx, int width, char *string, chtype color)
+ * \brief Affiche un texte au milieu d'une Fenetre.
+ *
+ * \param *win Pointeur sur la Fenetre ou l'on veut centrer le menu.
+ * \param argv Tableau de chaine contenant les différent paramètres données en argument
+ * \param startx Colonne du début de la fenêtre
+ * \param starty Ligne du début de la fenêtre
+ * \param width Longueur de la Fenetre
+ * \param string Chaine à afficher
+ * \param color Couleur d'affichage de la chaine
+ */
 void print_in_middle(WINDOW *win, int starty, int startx, int width, char *string, chtype color) {
     int length, x, y;
     float temp;
@@ -244,6 +297,14 @@ void print_in_middle(WINDOW *win, int starty, int startx, int width, char *strin
     refresh();
 }
 
+/**
+ * \fn void execute_main_menu(int choice, const char * choice_name, char * folder)
+ * \brief Fonction qui s'occupe de traiter les action on fonction des choix du menu principal.
+ *
+ * \param choice Numéro du choix.
+ * \param choice_name Chaine qui correspond au choix
+ * \param folder Dossier courrant (inutile ici, toujours à NULL)
+ */
 void execute_main_menu(int choice, const char * choice_name, char * folder) {
     //mvprintw(9, 0, "Item selected is : %i", choice);
 
@@ -263,6 +324,14 @@ void execute_main_menu(int choice, const char * choice_name, char * folder) {
 
 }
 
+/**
+ * \fn void execute_file_menu(int choice, const char * choice_name, char * folder)
+ * \brief Fonction qui s'occupe de traiter les action on fonction des choix du menu de selection des fichiers.
+ *
+ * \param choice Numéro du choix.
+ * \param choice_name Chaine qui correspond au choix
+ * \param folder Dossier courrant 
+ */
 void execute_file_menu(int choice, const char * choice_name, char * folder) {
 
 
@@ -291,7 +360,6 @@ void execute_file_menu(int choice, const char * choice_name, char * folder) {
         parse(folder_complet, &nb_instr);
 
 
-        int taille_reg = 8;
 
         attron(A_BOLD);
         attron(COLOR_PAIR(2));
@@ -347,11 +415,21 @@ void execute_file_menu(int choice, const char * choice_name, char * folder) {
     }
 }
 
+/**
+ * \fn void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_instruction, int* registres, int nb_reg)
+ * \brief Fonction qui affiche l'état de la mémoire ainsi que les instruction du programme en cours à une étape donnée.
+ *
+ * \param num_instruction Numéro de l'instruction en cour (entre 0 et 3999).
+ * \param tab_mot_instruction Liste des instructions du programme en cours
+ * \param nb_instruction Nombre d'instructions du programme en cours 
+ * \param registre État des registre du procésseur
+ * \nb_reg nombre de registre du procésseur
+ */
 void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_instruction, int* registres, int nb_reg) {
 
     // Mode Exécution d'un programme en cours => permet de désactiver la touche entrée (sinon erreur de segmentation)
     mWindow = M_EXEC;
-    
+
     //pour regler le focus du menu
     MENU *menu_focus = NULL;
 
@@ -367,14 +445,12 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
     int c;
     int i;
     instructions_items = (ITEM **) calloc(nb_instruction + 1, sizeof (ITEM *));
-    int menu_instruction_alrdy_dlt = 0; //pour ne pas supprimer le menu 2 fois --> évite les erreur de segmentation lorsqu'on quitte
 
     // for register
     char ** files;
     char ** tab_register;
     ITEM **register_items;
     register_items = (ITEM **) calloc(nb_reg + 1 + 3, sizeof (ITEM *)); //+3 pour PC sp et SR
-    int menu_register_alrdy_dlt = 0; //pour ne pas supprimer le menu 2 fois --> évite les erreur de segmentation lorsqu'on quitte   
 
     // for memory
     char memory_temp[TAILLE_MEM][50];
@@ -545,6 +621,7 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
 
         stack_items[k] = new_item(stack_temp[k], "");
 
+        mvprintw(LINES - 3, 0, "%i   %i   %i",i,k,sp);
         // On récupère l'adresse de SP
         if (i == sp) {
             item_stack_en_cour = stack_items[k];
@@ -644,7 +721,7 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
 
     //on se positionne sur le sommet de la pile
     set_current_item(stack_menu, item_stack_en_cour);
-
+    
     wrefresh(instructions_win);
     wrefresh(register_win);
     wrefresh(memory_win);
@@ -741,6 +818,15 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
     }
 }
 
+
+/**
+ * \fn char ** list_file(char * folder, int* nb_result)
+ * \brief Liste les fichier et dossier du dossier donné en paramètre 1.
+ *
+ * \param folder Dossier à explorer.
+ * \param nb_result Pointeur ou inscrire le nombre de dossier+fichier du dossier exploré
+ * \return char ** list_file - La liste des dossiers et fichiers contenu dans le dossier folder.
+ */
 char ** list_file(char * folder, int* nb_result) {
 
     struct dirent *lecture;
@@ -791,6 +877,13 @@ char ** list_file(char * folder, int* nb_result) {
 
 }
 
+/**
+ * \fn void tri_iteratif(char *tableau[], int taille)
+ * \brief Fonction de tri d'un tableau de chaines de caractères
+ *
+ * \param *tableau[] Le tableau à trier.
+ * \param taille Taille du tableau à trier
+ */
 void tri_iteratif(char *tableau[], int taille) {
     char *temp;
     int i, j;
@@ -803,6 +896,12 @@ void tri_iteratif(char *tableau[], int taille) {
             }
 }
 
+/**
+ * \fn void clean_menu(MENU * my_menu)
+ * \brief Néttoie le menu donnée de la mémoire.
+ *
+ * \param my_menu Le menu à nettoyer de la mémoire.
+ */
 void clean_menu(MENU * my_menu) {
     unpost_menu(my_menu);
     if (my_menu != NULL)
@@ -811,7 +910,11 @@ void clean_menu(MENU * my_menu) {
     refresh();
 }
 
-/* On enlève tous les menus "exécution" */
+/**
+ * \fn void clean_all_menu()
+ * \brief enlève tous les menus de "exécution".
+ *
+ */
 void clean_all_menu() {
 
     clean_menu(instruction_menu);
@@ -824,11 +927,25 @@ void clean_all_menu() {
     clean_window(stack_win);
 }
 
+/**
+ * \fn void clean_window(WINDOW * my_menu_win)
+ * \brief Néttoie la fenetre donnée de la mémoire et de l'écran.
+ *
+ * \param my_menu_win la fenetre à nettoyer de la mémoire et de l'écran.
+ */
 void clean_window(WINDOW * my_menu_win) {
     wclear(my_menu_win);
 
     wrefresh(my_menu_win);
 }
+
+/**
+ * \fn int exists(const char *fname)
+ * \brief Test si la chaine donnée en paramètre est un fichier ou un dossier ou n'est rien dans le systeme de fichier.
+ *
+ * \param fname Chaine dont on veut vérifier s'il s'agit d'un fichier/dossier.
+ * \return 0 - Nothing   1 - fichier   2 - Dossier
+ */
 
 int exists(const char *fname) {
     FILE *file = fopen(fname, "a+");
@@ -859,6 +976,13 @@ int exists(const char *fname) {
 
 }
 
+/**
+ * \fn char * codeop_tostring(int codeop)
+ * \brief Renvoi le code opérateur sous forme de String.
+ *
+ * \param codeop le codeop que l'on veut convertire en string.
+ * \return La chaine correspondant au codeop donné
+ */
 char * codeop_tostring(int codeop) {
 
 
@@ -905,6 +1029,13 @@ char * codeop_tostring(int codeop) {
     }
 }
 
+/**
+ * \fn char * mode_tostring(int codeop)
+ * \brief Renvoi le mode sous forme de String.
+ *
+ * \param a_mode le mode que l'on veut convertire en string.
+ * \return La chaine correspondant au mode donné
+ */
 char * mode_tostring(int a_mode) {
 
     //variable mode dea prise ...
@@ -932,6 +1063,15 @@ char * mode_tostring(int a_mode) {
     }
 }
 
+/**
+ * \fn char * instr_toString(mot instr, int brut1, int brut2)
+ * \brief Convertie une instruction de la mémoire sous forme de chaine de caractère formaté en ASM.
+ *
+ * \param instr L'instruction à afficher.
+ * \param brut1 la valeur du brut source (nécéssaire ou non suivant le mode d'adressage)
+ * \param brut2 la valeur du brut destination (nécéssaire ou non suivant le mode d'adressage)
+ * \return L'instruction au format ASM sous forme de String.
+ */
 char * instr_toString(mot instr, int brut1, int brut2) {
 
     char* instrToS = malloc(sizeof (char) *50);
@@ -1052,7 +1192,7 @@ char * instr_toString(mot instr, int brut1, int brut2) {
             sprintf(dest_string, "%d", instr.codage.source);
             strcat(instrToS, dest_string);
             strcat(instrToS, "]");
-        }            /* On utilise ce mode pour déterminer l'immédiat */
+        }/* On utilise ce mode pour déterminer l'immédiat */
         else if (instr.codage.mode == REGIMM) {
             strcat(instrToS, "#");
             sprintf(dest_string, "%d", brut1);
@@ -1113,6 +1253,11 @@ char* mem_toString(int adresse, bool isBrut) {
     return mem_s;
 }
 
+/**
+ * \fn void reset()
+ * \brief Réinitialise les registres.
+ *
+ */
 void reset() {
     PC = 0;
     sp = ADR_PILE_MIN;
@@ -1124,6 +1269,11 @@ void reset() {
     }
 }
 
+/**
+ * \fn void init_mem()
+ * \brief (Ré)initialise la mémoire entière.
+ *
+ */
 void init_mem() {
 
     int i;

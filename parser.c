@@ -1,3 +1,13 @@
+/**
+ * \file parser.c
+ * \brief Parseur de fichier ASM.
+ * \author Amaury.B
+ * \version 1.0
+ * \date 18 décembre 2011
+ *
+ * Emulateur PROCSI
+ *
+ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -11,7 +21,19 @@
 #define TAILLE_MAX 1000
 #define MAX_INSTRUCTION 1999
 
-
+/**
+ * \fn void parse(char * file, int * nb_instruction)
+ * \brief Parseur de fichier ASM.
+ *
+ * \param file fichier à analyser.
+ * \param *nb_instruction Pointeur dans lequel indiquer le nombre d'instruction du fichier analysé. 
+ * 
+ * nb_instruction renvoie aussi le code de l'erreur et la ligne de l'erreur si possible: 
+ *      -1 erreur lors de l'ouverture
+ *      -2 pas de HALT en fin de fichier
+ *      "2000 + numéro de la ligne" d'un mode d'adressage inconnue
+ *      "4000 + numéro de la ligne" d'une instruction inconnue
+ */
 void parse(char * file, int * nb_instruction){
     
     FILE* fichier = NULL;

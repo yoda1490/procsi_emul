@@ -1,3 +1,13 @@
+/**
+ * \file  parser.h
+ * \brief Fichier d'entête.
+ * \author Amaury.B
+ * \version 1.0
+ * \date 21 décembre 2011
+ *
+ * Fichier d'entête comportant les méthodes de l'interface en ncurses de l'émulateur procsi.
+ *
+ */
 #ifndef PARSER_H
 #define PARSER_H
 

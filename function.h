@@ -31,7 +31,7 @@
     */
 typedef union
 {
-    short brut; /*!< Valeur brut (16 bits). Utile pour des instructions sur plusieurs mots.*/
+    int brut; /*!< Valeur brut (16 bits). Utile pour des instructions sur plusieurs mots.*/
     /**
     * \struct codage
     * \brief Codage d'un mot sur 16 bits.
@@ -115,7 +115,7 @@ int sp, PC, SR;
  * \param source Opérande source.
  * \param dest Opérande destination.
  */
-void add(short int* source, int* dest, int* SR);
+void add(int* source, int* dest, int* SR);
 
 /**
  * \fn void sub(int* source, int* dest)
@@ -126,7 +126,7 @@ void add(short int* source, int* dest, int* SR);
  * \param source Opérande source.
  * \param dest Opérande destination.
  */
-void sub(short int* source, int* dest, int* SR);
+void sub(int* source, int* dest, int* SR);
 
 /**
  * \fn char* toHexa(int n)

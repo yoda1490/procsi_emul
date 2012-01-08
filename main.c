@@ -1,7 +1,7 @@
 /**
 * \file main.c
 * \brief Lancement de l'application
-* \author Lucas.C
+* \author Lucas.C & Amaury.B
 * \version 1.0
 * \date 20 décembre 2011
 *
@@ -17,6 +17,15 @@
 #include "interface.h"
 #include "parser.h"
 
+
+/**
+ * \fn int main (int argc, char* argv[])
+ * \brief Fonction main de l'émulateur.
+ *
+ * \param argc Nombre d'argument donnée lors de l'execution.
+ * \param argv Tableau de chaine contenant les différent paramètres données en argument
+ * \return EXIT_SUCCESS - Arrêt normal du programme.
+ */
 int main(int argc, char* argv[]){
    
     /* Initialisation des registres */

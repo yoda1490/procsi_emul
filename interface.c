@@ -621,7 +621,7 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
 
         stack_items[k] = new_item(stack_temp[k], "");
 
-        mvprintw(LINES - 3, 0, "%i   %i   %i",i,k,sp);
+        //mvprintw(LINES - 3, 0, "%i   %i   %i",i,k,sp);
         // On récupère l'adresse de SP
         if (i == sp) {
             item_stack_en_cour = stack_items[k];

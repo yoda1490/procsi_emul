@@ -15,5 +15,8 @@ EXECUTION
 		./ProcSI
 
 
+DOCUMENTATION
+	open DOC/html/index.html with your favorite web browser
+
 KNOWN BUG
 	We have corrected all the bugs we found, however there are still probably

@@ -349,17 +349,30 @@ void execute_file_menu(int choice, const char * choice_name, char * folder) {
     strcpy(folder_complet, folder);
     strcat(folder_complet, file);
 
-
+    //si c'est un fichier
     if (exists(folder_complet) == 1) {
         mvprintw(LINES - 2, 0, "                                                        ");
         mvprintw(LINES - 1, 0, "%s                                                                ", folder_complet);
 
         int nb_instr;
 
-
+        //on vérifie si le nom de fichier se termine par .asm, cela évite des erreur de segmentation si on ouvre des fichier de type PDF ou autre (binaire)
+        size_t nmatch = 0;
+        regex_t preg_fichier;
+        const char *fichier_regex = "\\.asm$";
+        int err = regcomp (&preg_fichier, fichier_regex,  REG_EXTENDED);
+        if(regexec (&preg_fichier, folder_complet,  nmatch, NULL, 0) == REG_NOMATCH){
+            int i;
+            char ** files = list_file(folder, &i);
+            mvprintw(LINES - 3, 0, "Not an .asm file");
+            mvprintw(LINES - 1, 0, "Dossier:  %s                                                        ", folder_complet);
+            draw_menu(files, execute_file_menu, folder, i);
+        }
+        //parsage et ajout du code dans la mémoire
         parse(folder_complet, &nb_instr);
 
-
+        //on efface not an asm file
+        mvprintw(LINES - 3, 0, "                 ");
 
         attron(A_BOLD);
         attron(COLOR_PAIR(2));
@@ -401,6 +414,7 @@ void execute_file_menu(int choice, const char * choice_name, char * folder) {
         attroff(A_BOLD);
         attroff(COLOR_PAIR(1)); */
 
+        //si c'est un dossier
     } else if (exists(folder_complet) == 2) {
         strcat(folder_complet, "/");
         int i;
@@ -614,7 +628,7 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
     /* AFFICHAGE PILE */
 
     int k = 0;
-    for (i = 4001; i <= 4500; i++) {
+    for (i = 4500; i >= 4001; i--) {
 
         snprintf(stack_temp[k], 20, "%i: %d ", i, mem_prog[i].brut);
         strncat(stack_temp[k], "\0", 1);
@@ -712,14 +726,28 @@ void display_execution(int num_instruction, mot * tab_mot_instruction, int nb_in
 
     //on se place sur l'instruction en cour
     set_current_item(instruction_menu, item_en_cour);
+    
+    //redondant et inutile mais nécéssaire pour la selection des éléments situé sur la dernière page
+    menu_driver(instruction_menu, REQ_SCR_DPAGE);
+    menu_driver(instruction_menu, REQ_SCR_UPAGE);
+    set_current_item(instruction_menu, item_en_cour);
 
     //on se positionne sur la mémoire précédement regardé
+    set_current_item(memory_menu, current_memory);
+     //redondant et inutile mais nécéssaire pour la selection des éléments situé sur la dernière page
+    menu_driver(memory_menu, REQ_SCR_DPAGE);
+    menu_driver(memory_menu, REQ_SCR_UPAGE);
     set_current_item(memory_menu, current_memory);
 
     //on se positionne sur le registre 0
     set_current_item(register_menu, item_register_en_cour);
 
     //on se positionne sur le sommet de la pile
+    set_current_item(stack_menu, item_stack_en_cour);
+    
+    //redondant et inutile mais nécéssaire pour la selection des éléments situé sur la dernière page
+    menu_driver(stack_menu, REQ_SCR_DPAGE);
+    menu_driver(stack_menu, REQ_SCR_UPAGE);
     set_current_item(stack_menu, item_stack_en_cour);
     
     wrefresh(instructions_win);

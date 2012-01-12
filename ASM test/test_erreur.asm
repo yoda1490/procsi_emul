@@ -1,8 +1,10 @@
 	
-// Instructions de tests : ADD
+// Test du debugger (affiche le numéro de la ligne erronée)
 
+	#ezfpi
 	ADD 	R0, #2000
-        AD 	R1, R0
-	STORE	[2000], #45
-	ADD	R3, [R0]
+        ADD 	R1, R0
+	SOTRE	[2000], #45
+	ADDDDDDD	R3, [R0]
+	
 	HALT

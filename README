@@ -1,3 +1,6 @@
+ProcSI Emul is a simple ASM emulator wirtten in C and desgined with Ncurses.
+It can work on any file on your computer with the .asm extension.
+
 REQUIREMENT
 	gcc, make, cmake, ncurses
 
@@ -10,3 +13,7 @@ EXECUTION
 	to run do:
 
 		./ProcSI
+
+
+KNOWN BUG
+	We have corrected all the bugs we found, however there are still probably

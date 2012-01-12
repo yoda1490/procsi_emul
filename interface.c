@@ -373,7 +373,7 @@ void execute_file_menu(int choice, const char * choice_name, char * folder) {
 
         //on efface not an asm file
         mvprintw(LINES - 3, 0, "                 ");
-
+        
         attron(A_BOLD);
         attron(COLOR_PAIR(2));
         mvprintw(LINES - 1, 0, "Compilation en cours ...");
@@ -388,7 +388,7 @@ void execute_file_menu(int choice, const char * choice_name, char * folder) {
         } else if (nb_instr > 2000 && nb_instr <= 4000) {
             mvprintw(LINES - 3, 0, "Erreur: mode d'adressage non disponible pour l'opérateur ligne %i", nb_instr - 2000);
         } else if (nb_instr > 4000 && nb_instr <= 6000) {
-            mvprintw(LINES - 3, 0, "Erreur: opérateur inconnue ligne %i", nb_instr - 4000);
+            mvprintw(LINES - 3, 0, "Erreur: opérateur inconnu ligne %i", nb_instr - 4000);
         } else {
             attroff(A_BOLD);
             attroff(COLOR_PAIR(1));

@@ -427,6 +427,11 @@ void execute_file_menu(int choice, const char * choice_name, char * folder) {
         char ** files = list_file("", &i);
         draw_menu(files, execute_file_menu, "", i);
     }
+    
+    int i;
+            char ** files = list_file(folder, &i);
+            mvprintw(LINES - 1, 0, "Dossier:  %s                                                        ", folder_complet);
+            draw_menu(files, execute_file_menu, folder, i);
 }
 
 /**
